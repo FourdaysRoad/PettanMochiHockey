@@ -12,11 +12,16 @@
 
 - [ ] **Unity ライセンスファイル（.ulf）の取得** 🔵 *PRD 9.2*
   - GameCI のドキュメント「Activation」の手順に従い、Unity Personal ライセンスの `.ulf` ファイルを用意する
-  - Unity Hub でサインインしてライセンスを有効にしていれば、Windows では `C:\ProgramData\Unity\Unity_lic.ulf` にある
+  - 注意: 自分の PC の `C:\ProgramData\Unity\Unity_lic.ulf` はその PC に結び付いているため、CI ではそのまま使えない（初回の CI で「machine binding doesn't match」となった）。この場合 GameCI は `UNITY_EMAIL` / `UNITY_PASSWORD` によるサインインに切り替えるので、次の項目のアカウント条件を満たすことが重要
+  - 関連要件: REQ-061
+- [ ] **CI でサインインできる Unity アカウントにする** 🔵 *初回 CI の結果*
+  - Unity アカウントにパスワードがあること（Google / Apple で登録した場合は Unity ID のページでパスワードを設定する）
+  - 二段階認証が有効だと CI からサインインできない（「Unity rejected the account credentials, or wants a second factor.」になる）。CI 用には二段階認証のないアカウントを使う
   - 関連要件: REQ-061
 - [ ] **GitHub Secrets の登録** 🔵 *PRD 9.2*
   - リポジトリの Settings → Secrets and variables → Actions に `UNITY_LICENSE`（.ulf の中身）、`UNITY_EMAIL`、`UNITY_PASSWORD` を登録する（自分で入力すること）
   - `UNITY_LICENSE` には .ulf ファイルの中身（XML）を、最初から最後まで丸ごと貼り付ける
+  - `UNITY_EMAIL` / `UNITY_PASSWORD` に余分な空白や改行を入れない（Secrets は中身を表示できないので、迷ったら入力し直す）
   - 登録すると `.github/workflows/ci.yml` がこの 3 つを読む
   - 関連要件: REQ-061
 - [ ] **GitHub Pages の公開元を「GitHub Actions」にする** 🔵 *PRD 9.2*
