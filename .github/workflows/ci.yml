@@ -73,13 +73,16 @@ jobs:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           checkName: ${{ matrix.testMode }} test results
           artifactsPath: artifacts/${{ matrix.testMode }}
+          # 既定の latest だと実行のたびに GitHub API で最新版を調べ、403（回数制限）で失敗することがある
+          cliVersion: v0.1.76
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ matrix.testMode }}
-          path: ${{ steps.tests.outputs.artifactsPath }}
+          path: artifacts/${{ matrix.testMode }}
+          if-no-files-found: warn
 
   build:
     name: Build WebGL
