@@ -82,7 +82,7 @@ TASK-0001 → TASK-0004
 - [x] [TASK-0005: MochiGrowth（餅のレベル判定）](TASK-0005.md) - 8h (TDD) 🔵
 - [x] [TASK-0006: Mochi（保持・吸収・落下・再吸着禁止）](TASK-0006.md) - 8h (TDD) 🔵
 - [x] [TASK-0007: SkateMotion と Stamina（慣性移動・ダッシュ）](TASK-0007.md) - 8h (TDD) 🔵
-- [ ] [TASK-0008: ShotCharge（チャージショット）](TASK-0008.md) - 8h (TDD) 🔵
+- [x] [TASK-0008: ShotCharge（チャージショット）](TASK-0008.md) - 8h (TDD) 🔵
 - [ ] [TASK-0009: RinkBounds（リンク外周の壁）](TASK-0009.md) - 8h (TDD) 🟡
 - [ ] [TASK-0010: PettanStateMachine（状態と時間進行）](TASK-0010.md) - 8h (TDD) 🔵
 - [ ] [TASK-0011: PettanStateMachine（吹っ飛び軌道・張り付き・ずり落ち）](TASK-0011.md) - 8h (TDD) 🔵
