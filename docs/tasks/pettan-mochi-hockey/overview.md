@@ -89,7 +89,7 @@ TASK-0001 → TASK-0004
 - [x] [TASK-0012: HitRules（杵の当たり判定ルール）](TASK-0012.md) - 8h (TDD) 🔵
 - [x] [TASK-0013: RiceSpawnSchedule（もち米の補充）](TASK-0013.md) - 8h (TDD) 🔵
 - [x] [TASK-0014: プロトタイプリンクと PlayerController（移動・ダッシュ）](TASK-0014.md) - 8h (TDD) 🔵
-- [ ] [TASK-0015: MochiBall ともち米（ドリブル・シュート・成長）](TASK-0015.md) - 8h (TDD) 🔵
+- [x] [TASK-0015: MochiBall ともち米（ドリブル・シュート・成長）](TASK-0015.md) - 8h (TDD) 🔵
 - [ ] [TASK-0016: MalletHitbox と被弾の反映（Pettan）](TASK-0016.md) - 8h (TDD) 🔵
 - [ ] [TASK-0017: プロトタイプ統合確認（Step 1 完了）](TASK-0017.md) - 8h (DIRECT) 🔵
 

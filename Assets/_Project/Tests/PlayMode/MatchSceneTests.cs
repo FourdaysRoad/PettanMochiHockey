@@ -11,6 +11,21 @@ namespace MochiHockey.Tests.PlayMode
     /// <summary>Match シーンの組み立て（TASK-0014 のエディタ手順）が崩れていないか。</summary>
     public class MatchSceneTests
     {
+        /// <summary>Match シーンを開いたままにすると、後のテストでシーンのプレイヤーが動き回るので閉じる。</summary>
+        [UnityTearDown]
+        public IEnumerator UnloadMatchScene()
+        {
+            var match = SceneManager.GetSceneByName("Match");
+            if (!match.isLoaded)
+            {
+                yield break;
+            }
+
+            var empty = SceneManager.CreateScene("EmptyAfterMatchSceneTests");
+            SceneManager.SetActiveScene(empty);
+            yield return SceneManager.UnloadSceneAsync(match);
+        }
+
         [UnityTest]
         public IEnumerator MatchScene_HasTwoWorkingPlayers()
         {
@@ -23,6 +38,23 @@ namespace MochiHockey.Tests.PlayMode
             Assert.That(controllers.All(c => c.enabled), Is.True, "Config が入っていない PlayerController がある");
             Assert.That(controllers.All(c => c.GetComponent<PlayerInputReader>().enabled), Is.True,
                 "Actions が入っていない PlayerInputReader がある");
+        }
+
+        [UnityTest]
+        public IEnumerator MatchScene_HasWorkingMochiBallAndRiceSpawner()
+        {
+            yield return SceneManager.LoadSceneAsync("Match", LoadSceneMode.Single);
+            yield return null;
+            yield return null;
+
+            var balls = Object.FindObjectsByType<MochiBall>(FindObjectsSortMode.None);
+            var spawner = Object.FindFirstObjectByType<MochiRiceSpawner>();
+
+            Assert.That(balls.Length, Is.EqualTo(1));
+            Assert.That(balls[0].enabled, Is.True, "MochiBall の Config が入っていない");
+            Assert.That(spawner, Is.Not.Null);
+            Assert.That(spawner.enabled, Is.True, "MochiRiceSpawner の Config か Rice Prefab が入っていない");
+            Assert.That(spawner.ActiveCount, Is.GreaterThan(0));
         }
 
         [UnityTest]

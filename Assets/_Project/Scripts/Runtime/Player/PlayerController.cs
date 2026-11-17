@@ -4,20 +4,23 @@ using UnityEngine;
 namespace MochiHockey.Runtime
 {
     /// <summary>
-    /// プレイヤー 1 人分の操作（REQ-021, REQ-026）。
-    /// Update で Core の SkateMotion / Stamina を進め、FixedUpdate で Rigidbody に速度と向きを反映する。
-    /// 入力は PlayerInputReader（またはテスト）が SetMoveInput / RequestDash で渡す。
+    /// プレイヤー 1 人分の操作（REQ-021, REQ-023, REQ-026）。
+    /// Update で Core の SkateMotion / Stamina / ShotCharge を進め、FixedUpdate で Rigidbody に速度と向きを反映する。
+    /// 入力は PlayerInputReader（またはテスト）が SetMoveInput / RequestDash / BeginShoot / ReleaseShoot で渡す。
     /// Core の XZ 平面は Vector2(x, y) = ワールドの (x, z)。
     /// </summary>
     [RequireComponent(typeof(Rigidbody))]
     public sealed class PlayerController : MonoBehaviour
     {
+        private static int s_nextId;
+
         [SerializeField] private GameBalanceConfig config;
 
         private Rigidbody _body;
         private PlayerSettings _settings;
         private SkateMotion _motion;
         private Stamina _stamina;
+        private ShotCharge _shotCharge;
 
         private System.Numerics.Vector2 _moveInput;
         private bool _dashRequested;
@@ -28,17 +31,27 @@ namespace MochiHockey.Runtime
             set => config = value;
         }
 
+        /// <summary>Core に渡すプレイヤーの識別番号（このプレイ中に作られた順の通し番号）。</summary>
+        public int Id { get; private set; }
+
         /// <summary>床面の速度（x = ワールド x、y = ワールド z）。</summary>
         public Vector2 PlanarVelocity => _motion == null ? Vector2.zero : ToUnity(_motion.Velocity);
 
         /// <summary>スタミナゲージ用（0〜1）。</summary>
         public float StaminaNormalized => _stamina?.Normalized ?? 0f;
 
-        /// <summary>持っている餅による速度倍率（餅を持っていなければ 1）。TASK-0015 で餅から設定する。</summary>
+        /// <summary>チャージゲージ用（0〜1）。</summary>
+        public float ShotChargeNormalized => _shotCharge?.Normalized ?? 0f;
+
+        /// <summary>持っている餅による速度倍率（餅を持っていなければ 1）。MochiBall が設定する。</summary>
         public float SpeedMultiplier { get; set; } = 1f;
+
+        /// <summary>持っている餅。MochiBall が吸着・手放しのときに設定する。</summary>
+        public MochiBall HeldBall { get; internal set; }
 
         private void Awake()
         {
+            Id = ++s_nextId;
             _body = GetComponent<Rigidbody>();
             _body.constraints = RigidbodyConstraints.FreezeRotation;
 
@@ -52,6 +65,7 @@ namespace MochiHockey.Runtime
             _settings = config.ToSettings().Player;
             _motion = new SkateMotion(_settings);
             _stamina = new Stamina(_settings);
+            _shotCharge = new ShotCharge(_settings);
         }
 
         /// <summary>スティック・移動キーの入力（長さ 1 まで）。</summary>
@@ -66,9 +80,27 @@ namespace MochiHockey.Runtime
             _dashRequested = true;
         }
 
+        /// <summary>パス／シュートボタンを押した。長押しでチャージする。</summary>
+        public void BeginShoot()
+        {
+            _shotCharge.Begin();
+        }
+
+        /// <summary>パス／シュートボタンを離した。餅を持っていれば、チャージ段階に応じて打ち出す。</summary>
+        public void ReleaseShoot()
+        {
+            var stage = _shotCharge.Release();
+            if (HeldBall != null)
+            {
+                HeldBall.Shoot(this, stage);
+            }
+        }
+
         private void Update()
         {
             var deltaTime = Time.deltaTime;
+
+            _shotCharge.Tick(deltaTime);
 
             _stamina.Tick(deltaTime);
             if (_dashRequested)

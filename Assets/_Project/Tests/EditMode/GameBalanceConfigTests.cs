@@ -165,6 +165,16 @@ namespace MochiHockey.Tests.EditMode
             Assert.DoesNotThrow(() => asset.ToSettings());
         }
 
+        [Test]
+        public void ProjectAsset_MochiBallArraysMatchStagesAndLevels()
+        {
+            var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<GameBalanceConfig>(
+                "Assets/_Project/ScriptableObjects/GameBalanceConfig.asset");
+
+            Assert.That(asset.MochiBall.ShotSpeedByStage.Length, Is.EqualTo(asset.Player.ChargeStages + 1));
+            Assert.That(asset.MochiBall.ShotSpeedMultiplierByLevel.Length, Is.EqualTo(BalanceSettings.MochiLevelCount));
+        }
+
         /// <summary>仕様書の値とは別の、項目ごとに異なる値を入れる（写し間違いを見つけるため）。</summary>
         private static void FillWithDistinctValues(GameBalanceConfig config)
         {

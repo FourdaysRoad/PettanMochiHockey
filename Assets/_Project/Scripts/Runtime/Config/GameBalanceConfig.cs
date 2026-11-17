@@ -20,6 +20,9 @@ namespace MochiHockey.Runtime
         public PlayerConfig Player = new PlayerConfig();
         public RinkConfig Rink = new RinkConfig();
 
+        /// <summary>餅の物理・見た目まわり（Runtime だけが使う。Core には渡さない）。</summary>
+        public MochiBallConfig MochiBall = new MochiBallConfig();
+
         /// <summary>Core 用の設定に変換する。値がおかしければ InvalidOperationException を投げる。</summary>
         public BalanceSettings ToSettings()
         {
@@ -175,6 +178,9 @@ namespace MochiHockey.Runtime
 
             [Tooltip("補充の間隔（秒）")]
             [Min(0f)] public float RefillInterval = 1.5f;
+
+            [Tooltip("仮：出現位置を壁からどれだけ離すか（m）。Runtime だけが使う")]
+            [Min(0f)] public float SpawnMargin = 1f;
         }
 
         [Serializable]
@@ -219,6 +225,28 @@ namespace MochiHockey.Runtime
         {
             [Tooltip("仮：リンクの内側の大きさ（x = 横幅、y = 奥行き。m）。原点が中心")]
             public Vector2 Size = new Vector2(24f, 14f);
+        }
+
+        [Serializable]
+        public sealed class MochiBallConfig
+        {
+            [Tooltip("仮：チャージ段階ごとのシュート速度（m/s）。段階 0（ノーマル）〜 ChargeStages の順で、要素数は ChargeStages + 1")]
+            public float[] ShotSpeedByStage = { 10f, 14f, 18f };
+
+            [Tooltip("仮：レベル別のシュート速度の倍率（Lv.1, Lv.2, Lv.3）。Lv.2 からシュートが強化される（REQ-015）")]
+            public float[] ShotSpeedMultiplierByLevel = { 1.0f, 1.2f, 1.2f };
+
+            [Tooltip("仮：吸着できる正面の角度（度）。プレイヤーの正面から左右にこの半分まで")]
+            [Range(0f, 360f)] public float AttachAngle = 120f;
+
+            [Tooltip("仮：ドリブル中の、プレイヤーの体と餅のすき間（m）")]
+            [Min(0f)] public float DribbleGap = 0.1f;
+
+            [Tooltip("仮：被弾で落としたときに跳ねる上向きの速さ（m/s）")]
+            [Min(0f)] public float DropPopSpeed = 3f;
+
+            [Tooltip("仮：誰も持っていない餅の減速の強さ（Rigidbody の Linear Damping）。氷の上でも少しずつ止まる")]
+            [Min(0f)] public float LinearDamping = 0.5f;
         }
     }
 }

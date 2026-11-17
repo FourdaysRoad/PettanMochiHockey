@@ -44,6 +44,7 @@ MonoBehaviour:
     MinCount: 5
     MaxCount: 10
     RefillInterval: 1.5
+    SpawnMargin: 1
   Player:
     MaxSpeed: 6
     Acceleration: 20
@@ -58,3 +59,16 @@ MonoBehaviour:
     WhiffRecoveryTime: 0.4
   Rink:
     Size: {x: 24, y: 14}
+  MochiBall:
+    ShotSpeedByStage:
+    - 10
+    - 14
+    - 18
+    ShotSpeedMultiplierByLevel:
+    - 1
+    - 1.2
+    - 1.2
+    AttachAngle: 120
+    DribbleGap: 0.1
+    DropPopSpeed: 3
+    LinearDamping: 0.5
