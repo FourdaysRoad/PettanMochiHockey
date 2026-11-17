@@ -56,3 +56,5 @@ MonoBehaviour:
     ChargeStages: 2
     SwingActiveTime: 0.15
     WhiffRecoveryTime: 0.4
+  Rink:
+    Size: {x: 24, y: 14}

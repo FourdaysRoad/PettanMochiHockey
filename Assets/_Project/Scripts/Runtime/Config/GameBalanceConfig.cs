@@ -18,6 +18,7 @@ namespace MochiHockey.Runtime
         public MatchConfig Match = new MatchConfig();
         public RiceConfig Rice = new RiceConfig();
         public PlayerConfig Player = new PlayerConfig();
+        public RinkConfig Rink = new RinkConfig();
 
         /// <summary>Core 用の設定に変換する。値がおかしければ InvalidOperationException を投げる。</summary>
         public BalanceSettings ToSettings()
@@ -73,10 +74,23 @@ namespace MochiHockey.Runtime
                     SwingActiveTime = Player.SwingActiveTime,
                     WhiffRecoveryTime = Player.WhiffRecoveryTime,
                 },
+                Rink = ToRinkBounds(Rink.Size),
             };
 
             settings.Validate();
             return settings;
+        }
+
+        /// <summary>原点を中心にした矩形にする。大きさが 0 以下なら default のままにして Validate で弾く。</summary>
+        private static RinkBounds ToRinkBounds(Vector2 size)
+        {
+            if (size.x <= 0f || size.y <= 0f)
+            {
+                return default;
+            }
+
+            var half = new System.Numerics.Vector2(size.x / 2f, size.y / 2f);
+            return new RinkBounds(-half, half);
         }
 
         private static T[] CopyOf<T>(T[] source) => source == null ? null : (T[])source.Clone();
@@ -198,6 +212,13 @@ namespace MochiHockey.Runtime
 
             [Tooltip("仮：空振りしたときの硬直の秒数")]
             [Min(0f)] public float WhiffRecoveryTime = 0.4f;
+        }
+
+        [Serializable]
+        public sealed class RinkConfig
+        {
+            [Tooltip("仮：リンクの内側の大きさ（x = 横幅、y = 奥行き。m）。原点が中心")]
+            public Vector2 Size = new Vector2(24f, 14f);
         }
     }
 }

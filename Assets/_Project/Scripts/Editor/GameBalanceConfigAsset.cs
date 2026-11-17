@@ -6,19 +6,21 @@ namespace MochiHockey.Editor
 {
     /// <summary>
     /// GameBalanceConfig.asset を決まった場所に作る（仕様書の値が入った状態で作られる）。
-    /// すでにあれば何もしない。
+    /// すでにあれば、値はそのままで新しい項目だけを書き足して保存し直す。
     /// </summary>
     public static class GameBalanceConfigAsset
     {
         public const string Path = "Assets/_Project/ScriptableObjects/GameBalanceConfig.asset";
 
-        [MenuItem("Tools/Mochi Hockey/Create Game Balance Config")]
+        [MenuItem("Tools/Mochi Hockey/Create or Update Game Balance Config")]
         public static void Create()
         {
             var existing = AssetDatabase.LoadAssetAtPath<GameBalanceConfig>(Path);
             if (existing != null)
             {
-                Debug.Log($"[MochiHockey] {Path} already exists.");
+                // 項目を足したときに、新しい項目の初期値をアセットのファイルにも書き出す
+                AssetDatabase.ForceReserializeAssets(new[] { Path });
+                Debug.Log($"[MochiHockey] {Path} already exists; reserialized it.");
                 Selection.activeObject = existing;
                 return;
             }

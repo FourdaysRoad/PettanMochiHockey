@@ -18,6 +18,7 @@ namespace MochiHockey.Tests.EditMode
                 Match = CreateMatch(),
                 Rice = CreateRice(),
                 Player = CreatePlayer(),
+                Rink = CreateRink(),
             };
         }
 
@@ -69,6 +70,12 @@ namespace MochiHockey.Tests.EditMode
                 MaxCount = 10,
                 RefillInterval = 1.5f,
             };
+        }
+
+        /// <summary>X: -12〜12、Z: -7〜7 のリンク。</summary>
+        public static RinkBounds CreateRink()
+        {
+            return new RinkBounds(new Vector2(-12f, -7f), new Vector2(12f, 7f));
         }
 
         public static PlayerSettings CreatePlayer()

@@ -5,7 +5,6 @@ namespace MochiHockey.Core
     /// <summary>
     /// Core が使う調整値をまとめたもの（REQ-402）。
     /// Core は数値の既定値を持たない。Runtime の GameBalanceConfig.ToSettings() で作って渡す。
-    /// リンクの寸法（RinkBounds）は TASK-0009 で追加する。
     /// </summary>
     public sealed class BalanceSettings
     {
@@ -18,6 +17,9 @@ namespace MochiHockey.Core
         public RiceSettings Rice;
         public PlayerSettings Player;
 
+        /// <summary>リンク外周の壁。シーンに依存しない値として持つ。</summary>
+        public RinkBounds Rink;
+
         /// <summary>
         /// 値の組み合わせが正しいかを調べる。おかしければ InvalidOperationException を投げる。
         /// </summary>
@@ -28,6 +30,11 @@ namespace MochiHockey.Core
             Require(Match, nameof(Match));
             Require(Rice, nameof(Rice));
             Require(Player, nameof(Player));
+
+            if (!Rink.IsValid)
+            {
+                throw new InvalidOperationException($"{nameof(Rink)} must have a positive size.");
+            }
 
             RequireLevelArray(Mochi.ScaleByLevel, nameof(MochiSettings.ScaleByLevel));
             RequireLevelArray(Mochi.PointsByLevel, nameof(MochiSettings.PointsByLevel));

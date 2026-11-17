@@ -82,6 +82,16 @@ namespace MochiHockey.Tests.EditMode
         }
 
         [Test]
+        public void Validate_RinkNotSet_Throws()
+        {
+            var settings = TestSettings.Create();
+            settings.Rink = default;
+
+            var ex = Assert.Throws<InvalidOperationException>(() => settings.Validate());
+            StringAssert.Contains(nameof(BalanceSettings.Rink), ex.Message);
+        }
+
+        [Test]
         public void Validate_RiceMinAboveMax_Throws()
         {
             var settings = TestSettings.Create();

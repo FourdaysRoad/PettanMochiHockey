@@ -93,6 +93,15 @@ namespace MochiHockey.Tests.EditMode
             Assert.That(player.WhiffRecoveryTime, Is.EqualTo(0.45f));
         }
 
+        [Test]
+        public void ToSettings_CreatesRinkCenteredOnOriginFromSize()
+        {
+            var rink = _config.ToSettings().Rink;
+
+            Assert.That(rink.Min, Is.EqualTo(new System.Numerics.Vector2(-13f, -7.5f)));
+            Assert.That(rink.Max, Is.EqualTo(new System.Numerics.Vector2(13f, 7.5f)));
+        }
+
         /// <summary>
         /// 設定クラスに項目を足したのに ToSettings で写し忘れた場合に気づけるよう、
         /// すべての公開フィールドが既定値のままになっていないことを確かめる。
@@ -196,6 +205,8 @@ namespace MochiHockey.Tests.EditMode
             config.Player.ChargeStages = 3;
             config.Player.SwingActiveTime = 0.16f;
             config.Player.WhiffRecoveryTime = 0.45f;
+
+            config.Rink.Size = new UnityEngine.Vector2(26f, 15f);
         }
     }
 }
