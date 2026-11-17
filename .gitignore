@@ -63,8 +63,8 @@ crashlytics-build.properties
 # ==========================================================
 # テスト・CI
 # ==========================================================
-# EditMode テストの結果ファイル
-results.xml
+# EditMode / PlayMode テストの結果ファイル
+results*.xml
 /[Tt]est[Rr]esults/
 /[Cc]ode[Cc]overage/
 
