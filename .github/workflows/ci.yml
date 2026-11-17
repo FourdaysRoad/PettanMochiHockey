@@ -129,6 +129,16 @@ jobs:
           targetPlatform: WebGL
           buildsPath: build
 
+      # 1 回目が残したビルド用スクリプト（Assets/Editor/ など）があると
+      # "Branch is dirty" で止まるので、追跡していないファイルを消してからやり直す。
+      # Library などの .gitignore 対象は消さない（-x を付けない）。
+      - name: Clean up failed build
+        if: steps.build.outcome == 'failure'
+        run: |
+          # ビルドの Docker が root で作ったファイルなので sudo で消す
+          sudo git -c safe.directory='*' clean -fd
+          git status --porcelain
+
       - name: Build (retry)
         if: steps.build.outcome == 'failure'
         uses: game-ci/unity-builder@v4
