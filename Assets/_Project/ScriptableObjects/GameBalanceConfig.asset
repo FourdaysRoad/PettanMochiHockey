@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8de93ca2e7c3cc646b834fa920972863, type: 3}
+  m_Name: GameBalanceConfig
+  m_EditorClassIdentifier: MochiHockey.Runtime::MochiHockey.Runtime.GameBalanceConfig
+  Mochi:
+    Lv2Threshold: 3
+    Lv3Threshold: 6
+    ScaleByLevel:
+    - 1
+    - 1.5
+    - 2.5
+    PointsByLevel: 010000000200000003000000i
+    SpeedMultiplierByLevel:
+    - 1
+    - 0.9
+    - 0.75
+    RegrabCooldown: 0.3
+  Pettan:
+    HitStopDuration: 0.08
+    LaunchNominalDuration: 0.6
+    LaunchMaxDuration: 1.2
+    LaunchSpeed: 12
+    LaunchBounceHeight: 1
+    SlideDownStartTime: 1.5
+    RecoverTime: 2.6
+    InvincibleEndTime: 3.6
+    SlideDownSpeed: 0.5
+    StuckScale: {x: 1.3, y: 1.3, z: 0.05}
+  Match:
+    MatchDuration: 180
+    KickoffCountdown: 3
+    MochiRespawnDelay: 1
+  Rice:
+    MinCount: 5
+    MaxCount: 10
+    RefillInterval: 1.5
+  Player:
+    MaxSpeed: 6
+    Acceleration: 20
+    Friction: 3
+    StaminaMax: 100
+    DashCost: 35
+    StaminaRegenPerSecond: 20
+    DashImpulse: 8
+    ChargeMaxTime: 1
+    ChargeStages: 2
+    SwingActiveTime: 0.15
+    WhiffRecoveryTime: 0.4

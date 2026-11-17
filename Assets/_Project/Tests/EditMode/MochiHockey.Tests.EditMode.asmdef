@@ -3,6 +3,7 @@
     "rootNamespace": "MochiHockey.Tests.EditMode",
     "references": [
         "MochiHockey.Core",
+        "MochiHockey.Runtime",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

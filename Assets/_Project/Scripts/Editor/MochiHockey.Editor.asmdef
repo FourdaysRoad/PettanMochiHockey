@@ -1,7 +1,9 @@
 {
     "name": "MochiHockey.Editor",
     "rootNamespace": "MochiHockey.Editor",
-    "references": [],
+    "references": [
+        "MochiHockey.Runtime"
+    ],
     "includePlatforms": [
         "Editor"
     ],

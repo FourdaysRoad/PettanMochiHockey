@@ -59,7 +59,7 @@
 - [x] [TASK-0001: フォルダ構成・asmdef・パッケージ追加](TASK-0001.md) - 8h (DIRECT) 🔵
 - [x] [TASK-0002: GameCI ワークフロー（テスト・ビルド・Pages デプロイ）](TASK-0002.md) - 8h (DIRECT) 🔵
 - [x] [TASK-0003: WebGL ビルド設定と Pages 公開確認](TASK-0003.md) - 8h (DIRECT) 🔵
-- [ ] [TASK-0004: BalanceSettings と GameBalanceConfig](TASK-0004.md) - 8h (TDD) 🔵
+- [x] [TASK-0004: BalanceSettings と GameBalanceConfig](TASK-0004.md) - 8h (TDD) 🔵
 
 ### 依存関係
 
