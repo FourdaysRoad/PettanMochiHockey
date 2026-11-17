@@ -118,7 +118,19 @@ jobs:
           restore-keys: |
             Library-WebGL-
 
+      # GitHub Actions の x64 ランナーでは、Unity がバッチモードの起動直後に
+      # "Killed"（exit code 137）で落ちることがある（Unity の既知の不具合）。
+      # 起きるのはときどきなので、失敗したら 1 回だけやり直す。
       - name: Build
+        id: build
+        continue-on-error: true
+        uses: game-ci/unity-builder@v4
+        with:
+          targetPlatform: WebGL
+          buildsPath: build
+
+      - name: Build (retry)
+        if: steps.build.outcome == 'failure'
         uses: game-ci/unity-builder@v4
         with:
           targetPlatform: WebGL
