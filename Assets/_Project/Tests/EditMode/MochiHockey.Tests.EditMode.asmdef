@@ -4,6 +4,7 @@
     "references": [
         "MochiHockey.Core",
         "MochiHockey.Runtime",
+        "Unity.InputSystem",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],
