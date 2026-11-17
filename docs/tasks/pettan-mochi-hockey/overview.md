@@ -86,7 +86,7 @@ TASK-0001 → TASK-0004
 - [x] [TASK-0009: RinkBounds（リンク外周の壁）](TASK-0009.md) - 8h (TDD) 🟡
 - [x] [TASK-0010: PettanStateMachine（状態と時間進行）](TASK-0010.md) - 8h (TDD) 🔵
 - [x] [TASK-0011: PettanStateMachine（吹っ飛び軌道・張り付き・ずり落ち）](TASK-0011.md) - 8h (TDD) 🔵
-- [ ] [TASK-0012: HitRules（杵の当たり判定ルール）](TASK-0012.md) - 8h (TDD) 🔵
+- [x] [TASK-0012: HitRules（杵の当たり判定ルール）](TASK-0012.md) - 8h (TDD) 🔵
 - [ ] [TASK-0013: RiceSpawnSchedule（もち米の補充）](TASK-0013.md) - 8h (TDD) 🔵
 - [ ] [TASK-0014: プロトタイプリンクと PlayerController（移動・ダッシュ）](TASK-0014.md) - 8h (TDD) 🔵
 - [ ] [TASK-0015: MochiBall ともち米（ドリブル・シュート・成長）](TASK-0015.md) - 8h (TDD) 🔵
