@@ -7,6 +7,10 @@ namespace MochiHockey.Core
     /// 被弾後の状態と軌道（REQ-031〜035）。Runtime はこの値を kinematic で反映する。
     /// 時刻はすべて Begin からの経過秒で、PettanSettings の値を区切りに使う：
     /// HitStop → Launched（HitStopDuration）→ 壁到達で Stuck → Recover で Invincible（RecoverTime）→ Normal。
+    /// 吹っ飛び：床面は攻撃者の正面方向へ等速で直進する。高さは標準の吹っ飛び時間
+    /// （HitStopDuration〜LaunchNominalDuration）を前半・後半に分けた 2 つの放物線で、真ん中で床に 1 回バウンドする。
+    /// その後は床を滑って壁へ向かい、LaunchMaxDuration までに届かなければその場で復帰する。
+    /// 張り付き：届いた瞬間の高さのまま止まり、SlideDownStartTime から SlideDownSpeed で下がる。
     /// </summary>
     public sealed class PettanStateMachine
     {
@@ -23,6 +27,7 @@ namespace MochiHockey.Core
         private Vector2 _wallNormal;
         private float _wallArrivalTime;
         private float _recoverTime;
+        private float _stuckHeight;
 
         public PettanStateMachine(PettanSettings settings, RinkBounds rink)
         {
@@ -43,11 +48,17 @@ namespace MochiHockey.Core
         /// <summary>床面 XZ の位置。</summary>
         public Vector2 Position { get; private set; }
 
-        /// <summary>高さ（Y）。</summary>
+        /// <summary>
+        /// 通常の立ち位置からの高さ（Y）。吹っ飛び中は 0 以上。
+        /// 張り付き中のずり落ちでは 0 より下がることがある（Runtime が壁の貼り付け位置に足して使う）。
+        /// </summary>
         public float Height { get; private set; }
 
         /// <summary>貼り付いている壁の内向きの法線。Stuck 中のみ意味がある。</summary>
         public Vector2 WallNormal { get; private set; }
+
+        /// <summary>張り付き中のずり落ち（SlideDownStartTime 以降）。</summary>
+        public bool IsSlidingDown => State == PettanState.Stuck && Elapsed >= _settings.SlideDownStartTime - TimeTolerance;
 
         public Vector3 Scale => State == PettanState.Stuck ? _settings.StuckScale : Vector3.One;
 
@@ -131,7 +142,7 @@ namespace MochiHockey.Core
                 case PettanState.HitStop:
                     return _settings.HitStopDuration;
                 case PettanState.Launched:
-                    return _wallArrivalTime;
+                    return MathF.Min(_wallArrivalTime, _settings.LaunchMaxDuration);
                 case PettanState.Stuck:
                     return _settings.RecoverTime;
                 case PettanState.Invincible:
@@ -149,9 +160,19 @@ namespace MochiHockey.Core
                     ChangeState(PettanState.Launched);
                     break;
                 case PettanState.Launched:
-                    Position = _wallPoint;
-                    WallNormal = _wallNormal;
-                    ChangeState(PettanState.Stuck);
+                    if (_willHitWall && Elapsed >= _wallArrivalTime - TimeTolerance)
+                    {
+                        Position = _wallPoint;
+                        WallNormal = _wallNormal;
+                        _stuckHeight = Height;
+                        ChangeState(PettanState.Stuck);
+                    }
+                    else
+                    {
+                        // 上限までに壁に届かなかった：その場で復帰する
+                        Recover();
+                    }
+
                     break;
                 case PettanState.Stuck:
                     Recover();
@@ -173,11 +194,33 @@ namespace MochiHockey.Core
 
         private void UpdatePose()
         {
-            if (State == PettanState.Launched)
+            switch (State)
             {
-                var flightTime = Elapsed - _settings.HitStopDuration;
-                Position = _launchOrigin + _launchDirection * (_settings.LaunchSpeed * flightTime);
+                case PettanState.Launched:
+                    var flightTime = Elapsed - _settings.HitStopDuration;
+                    Position = _launchOrigin + _launchDirection * (_settings.LaunchSpeed * flightTime);
+                    Height = BounceHeight(flightTime);
+                    break;
+                case PettanState.Stuck:
+                    var slideTime = MathF.Max(0f, Elapsed - _settings.SlideDownStartTime);
+                    Height = _stuckHeight - _settings.SlideDownSpeed * slideTime;
+                    break;
             }
+        }
+
+        /// <summary>前半・後半 2 つの放物線（高さ LaunchBounceHeight）。標準の吹っ飛び時間を過ぎたら 0。</summary>
+        private float BounceHeight(float flightTime)
+        {
+            var nominalFlight = _settings.LaunchNominalDuration - _settings.HitStopDuration;
+            if (nominalFlight <= 0f || flightTime <= 0f || flightTime >= nominalFlight)
+            {
+                return 0f;
+            }
+
+            var arc = nominalFlight / 2f;
+            var t = flightTime < arc ? flightTime : flightTime - arc;
+            var q = t / arc;
+            return 4f * _settings.LaunchBounceHeight * q * (1f - q);
         }
 
         private void ChangeState(PettanState next)
