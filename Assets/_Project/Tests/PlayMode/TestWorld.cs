@@ -1,3 +1,4 @@
+using MochiHockey.Core;
 using MochiHockey.Runtime;
 using UnityEngine;
 
@@ -6,7 +7,8 @@ namespace MochiHockey.Tests.PlayMode
     /// <summary>PlayMode テスト用に、重力なしのプレイヤー・餅・ご飯粒を組み立てる。</summary>
     public static class TestWorld
     {
-        public static PlayerController CreatePlayer(GameBalanceConfig config, Vector3 position, Vector3 facing)
+        public static PlayerController CreatePlayer(GameBalanceConfig config, Vector3 position, Vector3 facing,
+            Team team = Team.A)
         {
             var player = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             player.name = "Player";
@@ -16,6 +18,8 @@ namespace MochiHockey.Tests.PlayMode
             body.useGravity = false;
             var controller = player.AddComponent<PlayerController>();
             controller.Config = config;
+            controller.Team = team;
+            player.AddComponent<MalletHitbox>();
             player.SetActive(true);
             return controller;
         }

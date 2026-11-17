@@ -47,6 +47,12 @@ namespace MochiHockey.Core
                     $"{nameof(MochiSettings.Lv2Threshold)} ({Mochi.Lv2Threshold}).");
             }
 
+            if (Pettan.LaunchWallBounces < 0)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(PettanSettings.LaunchWallBounces)} ({Pettan.LaunchWallBounces}) must not be negative.");
+            }
+
             if (Rice.MinCount > Rice.MaxCount)
             {
                 throw new InvalidOperationException(

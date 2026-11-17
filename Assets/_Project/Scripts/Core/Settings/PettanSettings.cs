@@ -8,8 +8,6 @@ namespace MochiHockey.Core
         /// <summary>被弾直後に止まる秒数。</summary>
         public float HitStopDuration;
 
-        /// <summary>吹っ飛びの標準の秒数（この時間で壁に届かなくても延長する）。</summary>
-        public float LaunchNominalDuration;
 
         /// <summary>吹っ飛びを延長できる上限の秒数。</summary>
         public float LaunchMaxDuration;
@@ -17,8 +15,8 @@ namespace MochiHockey.Core
         /// <summary>吹っ飛びの直進速度（m/s）。</summary>
         public float LaunchSpeed;
 
-        /// <summary>吹っ飛び中に床で 1 回バウンドする放物線の高さ（m）。</summary>
-        public float LaunchBounceHeight;
+        /// <summary>吹っ飛び中に壁で跳ね返る回数。この回数だけ跳ね返ったあと、次に当たった壁に貼り付く。</summary>
+        public int LaunchWallBounces;
 
         /// <summary>被弾からずり落ちが始まるまでの秒数。</summary>
         public float SlideDownStartTime;

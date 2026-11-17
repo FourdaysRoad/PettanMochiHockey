@@ -13,6 +13,7 @@ namespace MochiHockey.Tests.EditMode
         private const float Tolerance = 1e-3f;
 
         // HitStop 0.08s、吹っ飛び 12 m/s、復帰 2.6s、無敵終了 3.6s。リンクは X: -12〜12、Z: -7〜7
+        // 状態の時刻を確かめやすいよう、壁での跳ね返りはなし（最初の壁に貼り付く）にする
         private PettanSettings _settings;
         private PettanStateMachine _machine;
         private List<PettanState> _stateChanges;
@@ -26,6 +27,7 @@ namespace MochiHockey.Tests.EditMode
         public void SetUp()
         {
             _settings = TestSettings.CreatePettan();
+            _settings.LaunchWallBounces = 0;
             _machine = new PettanStateMachine(_settings, TestSettings.CreateRink());
             _stateChanges = new List<PettanState>();
             _recoveredCount = 0;

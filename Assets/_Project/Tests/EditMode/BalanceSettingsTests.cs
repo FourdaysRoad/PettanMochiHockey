@@ -92,6 +92,16 @@ namespace MochiHockey.Tests.EditMode
         }
 
         [Test]
+        public void Validate_NegativeWallBounces_Throws()
+        {
+            var settings = TestSettings.Create();
+            settings.Pettan.LaunchWallBounces = -1;
+
+            var ex = Assert.Throws<InvalidOperationException>(() => settings.Validate());
+            StringAssert.Contains(nameof(PettanSettings.LaunchWallBounces), ex.Message);
+        }
+
+        [Test]
         public void Validate_RiceMinAboveMax_Throws()
         {
             var settings = TestSettings.Create();

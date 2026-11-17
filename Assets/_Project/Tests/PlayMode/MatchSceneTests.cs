@@ -58,6 +58,19 @@ namespace MochiHockey.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator MatchScene_PlayersHaveMalletsAndOpposingTeams()
+        {
+            yield return SceneManager.LoadSceneAsync("Match", LoadSceneMode.Single);
+
+            var player1 = GameObject.Find("Player1").GetComponent<PlayerController>();
+            var player2 = GameObject.Find("Player2").GetComponent<PlayerController>();
+
+            Assert.That(player1.GetComponent<MalletHitbox>(), Is.Not.Null, "Player1 に Mallet Hitbox がない");
+            Assert.That(player2.GetComponent<MalletHitbox>(), Is.Not.Null, "Player2 に Mallet Hitbox がない");
+            Assert.That(player1.Team, Is.Not.EqualTo(player2.Team), "Player1 と Player2 が同じチーム");
+        }
+
+        [UnityTest]
         public IEnumerator MatchScene_PlayerMovesWhenGivenInput()
         {
             yield return SceneManager.LoadSceneAsync("Match", LoadSceneMode.Single);

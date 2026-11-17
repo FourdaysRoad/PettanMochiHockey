@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace MochiHockey.Core
@@ -7,10 +8,10 @@ namespace MochiHockey.Core
     /// 被弾後の状態と軌道（REQ-031〜035）。Runtime はこの値を kinematic で反映する。
     /// 時刻はすべて Begin からの経過秒で、PettanSettings の値を区切りに使う：
     /// HitStop → Launched（HitStopDuration）→ 壁到達で Stuck → Recover で Invincible（RecoverTime）→ Normal。
-    /// 吹っ飛び：床面は攻撃者の正面方向へ等速で直進する。高さは標準の吹っ飛び時間
-    /// （HitStopDuration〜LaunchNominalDuration）を前半・後半に分けた 2 つの放物線で、真ん中で床に 1 回バウンドする。
-    /// その後は床を滑って壁へ向かい、LaunchMaxDuration までに届かなければその場で復帰する。
-    /// 張り付き：届いた瞬間の高さのまま止まり、SlideDownStartTime から SlideDownSpeed で下がる。
+    /// 吹っ飛び：攻撃者の正面方向へ、高さを変えずに水平に等速で直進する。壁に当たると反射して跳ね返り、
+    /// LaunchWallBounces 回跳ね返ったあと、次に当たった壁に貼り付く。
+    /// LaunchMaxDuration までに貼り付けなければ、その場で復帰する。
+    /// 張り付き：SlideDownStartTime から SlideDownSpeed で壁沿いに下がる。
     /// </summary>
     public sealed class PettanStateMachine
     {
@@ -20,14 +21,14 @@ namespace MochiHockey.Core
         private readonly PettanSettings _settings;
         private readonly RinkBounds _rink;
 
-        private Vector2 _launchOrigin;
-        private Vector2 _launchDirection;
+        // 吹っ飛びの道のり。壁で跳ね返るたびに次の区間になる
+        private readonly List<LaunchLeg> _legs = new List<LaunchLeg>();
+        private int _nextBounceLeg;
         private bool _willHitWall;
         private Vector2 _wallPoint;
         private Vector2 _wallNormal;
         private float _wallArrivalTime;
         private float _recoverTime;
-        private float _stuckHeight;
 
         public PettanStateMachine(PettanSettings settings, RinkBounds rink)
         {
@@ -49,8 +50,8 @@ namespace MochiHockey.Core
         public Vector2 Position { get; private set; }
 
         /// <summary>
-        /// 通常の立ち位置からの高さ（Y）。吹っ飛び中は 0 以上。
-        /// 張り付き中のずり落ちでは 0 より下がることがある（Runtime が壁の貼り付け位置に足して使う）。
+        /// 通常の立ち位置からの高さ（Y）。吹っ飛び中は 0（水平に飛ぶ）。
+        /// 張り付き中のずり落ちで 0 より下がる（Runtime が貼り付けた位置に足して使う）。
         /// </summary>
         public float Height { get; private set; }
 
@@ -78,6 +79,9 @@ namespace MochiHockey.Core
         /// <summary>復帰した瞬間（「ポンッ！」SE 用）。</summary>
         public event Action Recovered;
 
+        /// <summary>吹っ飛び中に壁で跳ね返った瞬間（SE・VFX 用）。</summary>
+        public event Action Bounced;
+
         /// <summary>被弾を始める。Normal 以外のときは無視する。</summary>
         /// <param name="position">被弾した位置（床面 XZ）。</param>
         /// <param name="launchDirection">攻撃者の正面方向。長さは問わない。</param>
@@ -97,14 +101,7 @@ namespace MochiHockey.Core
             Position = position;
             Height = 0f;
             WallNormal = Vector2.Zero;
-            _launchOrigin = position;
-            _launchDirection = Vector2.Normalize(launchDirection);
-
-            _willHitWall = _settings.LaunchSpeed > 0f
-                && _rink.TryGetWallHit(position, _launchDirection, out _wallPoint, out _wallNormal);
-            _wallArrivalTime = _willHitWall
-                ? _settings.HitStopDuration + Vector2.Distance(position, _wallPoint) / _settings.LaunchSpeed
-                : float.PositiveInfinity;
+            PlanLaunch(position, Vector2.Normalize(launchDirection));
 
             ChangeState(PettanState.HitStop);
         }
@@ -164,7 +161,7 @@ namespace MochiHockey.Core
                     {
                         Position = _wallPoint;
                         WallNormal = _wallNormal;
-                        _stuckHeight = Height;
+                        Height = 0f;
                         ChangeState(PettanState.Stuck);
                     }
                     else
@@ -192,41 +189,95 @@ namespace MochiHockey.Core
             Recovered?.Invoke();
         }
 
+        /// <summary>
+        /// 被弾した時点で、壁で跳ね返る道のりを先に決めておく。
+        /// 跳ね返るたびに区間を足し、最後に当たる壁を貼り付く位置にする。
+        /// </summary>
+        private void PlanLaunch(Vector2 origin, Vector2 direction)
+        {
+            _legs.Clear();
+            _legs.Add(new LaunchLeg(origin, direction, 0f));
+            _nextBounceLeg = 1;
+            _willHitWall = false;
+            _wallArrivalTime = float.PositiveInfinity;
+
+            if (_settings.LaunchSpeed <= 0f)
+            {
+                return;
+            }
+
+            var distance = 0f;
+            for (var bounce = 0; ; bounce++)
+            {
+                var leg = _legs[_legs.Count - 1];
+                if (!_rink.TryGetWallHit(leg.Start, leg.Direction, out var hit, out var normal))
+                {
+                    return;
+                }
+
+                distance += Vector2.Distance(leg.Start, hit);
+                if (bounce >= _settings.LaunchWallBounces)
+                {
+                    _willHitWall = true;
+                    _wallPoint = hit;
+                    _wallNormal = normal;
+                    _wallArrivalTime = _settings.HitStopDuration + distance / _settings.LaunchSpeed;
+                    return;
+                }
+
+                _legs.Add(new LaunchLeg(hit, Vector2.Reflect(leg.Direction, normal), distance));
+            }
+        }
+
         private void UpdatePose()
         {
             switch (State)
             {
                 case PettanState.Launched:
-                    var flightTime = Elapsed - _settings.HitStopDuration;
-                    Position = _launchOrigin + _launchDirection * (_settings.LaunchSpeed * flightTime);
-                    Height = BounceHeight(flightTime);
+                    var traveled = _settings.LaunchSpeed * (Elapsed - _settings.HitStopDuration);
+                    RaiseBouncesUpTo(traveled);
+                    var leg = _legs[_nextBounceLeg - 1];
+                    Position = leg.Start + leg.Direction * (traveled - leg.StartDistance);
+                    Height = 0f;
                     break;
                 case PettanState.Stuck:
                     var slideTime = MathF.Max(0f, Elapsed - _settings.SlideDownStartTime);
-                    Height = _stuckHeight - _settings.SlideDownSpeed * slideTime;
+                    Height = -_settings.SlideDownSpeed * slideTime;
                     break;
             }
         }
 
-        /// <summary>前半・後半 2 つの放物線（高さ LaunchBounceHeight）。標準の吹っ飛び時間を過ぎたら 0。</summary>
-        private float BounceHeight(float flightTime)
+        /// <summary>進んだ距離までにある跳ね返りを、順に知らせる。</summary>
+        private void RaiseBouncesUpTo(float traveled)
         {
-            var nominalFlight = _settings.LaunchNominalDuration - _settings.HitStopDuration;
-            if (nominalFlight <= 0f || flightTime <= 0f || flightTime >= nominalFlight)
+            while (_nextBounceLeg < _legs.Count && _legs[_nextBounceLeg].StartDistance <= traveled + TimeTolerance)
             {
-                return 0f;
+                _nextBounceLeg++;
+                Bounced?.Invoke();
             }
-
-            var arc = nominalFlight / 2f;
-            var t = flightTime < arc ? flightTime : flightTime - arc;
-            var q = t / arc;
-            return 4f * _settings.LaunchBounceHeight * q * (1f - q);
         }
 
         private void ChangeState(PettanState next)
         {
             State = next;
             StateChanged?.Invoke(next);
+        }
+
+        /// <summary>吹っ飛びの道のりの 1 区間（壁から壁まで）。</summary>
+        private readonly struct LaunchLeg
+        {
+            public LaunchLeg(Vector2 start, Vector2 direction, float startDistance)
+            {
+                Start = start;
+                Direction = direction;
+                StartDistance = startDistance;
+            }
+
+            public Vector2 Start { get; }
+            public Vector2 Direction { get; }
+
+            /// <summary>吹っ飛び始めから、この区間の始まりまでの距離。</summary>
+            public float StartDistance { get; }
         }
     }
 }

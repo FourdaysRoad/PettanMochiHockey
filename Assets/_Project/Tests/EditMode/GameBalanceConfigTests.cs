@@ -44,10 +44,9 @@ namespace MochiHockey.Tests.EditMode
             var pettan = _config.ToSettings().Pettan;
 
             Assert.That(pettan.HitStopDuration, Is.EqualTo(0.09f));
-            Assert.That(pettan.LaunchNominalDuration, Is.EqualTo(0.65f));
             Assert.That(pettan.LaunchMaxDuration, Is.EqualTo(1.25f));
             Assert.That(pettan.LaunchSpeed, Is.EqualTo(13f));
-            Assert.That(pettan.LaunchBounceHeight, Is.EqualTo(1.1f));
+            Assert.That(pettan.LaunchWallBounces, Is.EqualTo(2));
             Assert.That(pettan.SlideDownStartTime, Is.EqualTo(1.55f));
             Assert.That(pettan.RecoverTime, Is.EqualTo(2.65f));
             Assert.That(pettan.InvincibleEndTime, Is.EqualTo(3.65f));
@@ -186,10 +185,9 @@ namespace MochiHockey.Tests.EditMode
             config.Mochi.RegrabCooldown = 0.35f;
 
             config.Pettan.HitStopDuration = 0.09f;
-            config.Pettan.LaunchNominalDuration = 0.65f;
             config.Pettan.LaunchMaxDuration = 1.25f;
             config.Pettan.LaunchSpeed = 13f;
-            config.Pettan.LaunchBounceHeight = 1.1f;
+            config.Pettan.LaunchWallBounces = 2;
             config.Pettan.SlideDownStartTime = 1.55f;
             config.Pettan.RecoverTime = 2.65f;
             config.Pettan.InvincibleEndTime = 3.65f;

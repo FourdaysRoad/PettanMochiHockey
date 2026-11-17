@@ -40,10 +40,9 @@ namespace MochiHockey.Tests.EditMode
             return new PettanSettings
             {
                 HitStopDuration = 0.08f,
-                LaunchNominalDuration = 0.6f,
                 LaunchMaxDuration = 1.2f,
                 LaunchSpeed = 12f,
-                LaunchBounceHeight = 1f,
+                LaunchWallBounces = 1,
                 SlideDownStartTime = 1.5f,
                 RecoverTime = 2.6f,
                 InvincibleEndTime = 3.6f,

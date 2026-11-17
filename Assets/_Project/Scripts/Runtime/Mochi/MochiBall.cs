@@ -92,7 +92,7 @@ namespace MochiHockey.Runtime
 
         /// <summary>
         /// 吸着を試みる。ほかの人が持っているとき、手放した直後の本人（REQ-024）、
-        /// すでに別の餅を持っているプレイヤーは失敗する。向きの判定はしない。
+        /// すでに別の餅を持っているプレイヤー、被弾中（吹っ飛び・貼り付き）のプレイヤーは失敗する。向きの判定はしない。
         /// </summary>
         public bool TryAttach(PlayerController player)
         {
@@ -106,7 +106,7 @@ namespace MochiHockey.Runtime
                 return Holder == player;
             }
 
-            if (player.HeldBall != null || !_mochi.TryAttach(IdOf(player)))
+            if (!player.CanHoldBall || player.HeldBall != null || !_mochi.TryAttach(IdOf(player)))
             {
                 return false;
             }

@@ -27,15 +27,15 @@ MonoBehaviour:
     RegrabCooldown: 0.3
   Pettan:
     HitStopDuration: 0.08
-    LaunchNominalDuration: 0.6
-    LaunchMaxDuration: 1.2
-    LaunchSpeed: 12
-    LaunchBounceHeight: 1
+    LaunchMaxDuration: 2
+    LaunchSpeed: 30
+    LaunchWallBounces: 1
     SlideDownStartTime: 1.5
     RecoverTime: 2.6
     InvincibleEndTime: 3.6
     SlideDownSpeed: 0.5
     StuckScale: {x: 1.3, y: 1.3, z: 0.05}
+    BlinkInterval: 0.1
   Match:
     MatchDuration: 180
     KickoffCountdown: 3
@@ -72,3 +72,6 @@ MonoBehaviour:
     DribbleGap: 0.1
     DropPopSpeed: 3
     LinearDamping: 0.5
+  Mallet:
+    Reach: 1.2
+    Radius: 0.8

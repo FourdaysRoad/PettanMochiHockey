@@ -69,10 +69,9 @@ namespace MochiHockey.Core
     public sealed class PettanSettings
     {
         public float HitStopDuration;       // 0.08
-        public float LaunchNominalDuration; // 0.6（この時間で壁に届かなくても延長する）
-        public float LaunchMaxDuration;     // 🟡 延長の上限（値は調整で決める）
+        public float LaunchMaxDuration;     // 🟡 被弾からの上限（これまでに貼り付けなければその場で復帰）
         public float LaunchSpeed;           // 🟡 直進速度（m/s）
-        public float LaunchBounceHeight;    // 🟡 床で 1 回バウンドする放物線の高さ
+        public int LaunchWallBounces;       // 🔵 壁で跳ね返る回数（1）。その後、次の壁に貼り付く
         public float SlideDownStartTime;    // 1.5
         public float RecoverTime;           // 2.6
         public float InvincibleEndTime;     // 3.6
@@ -177,7 +176,7 @@ namespace MochiHockey.Core
         public PettanState State { get; }
         public float Elapsed { get; }                 // Begin からの経過秒
         public Vector2 Position { get; }              // 床面 XZ
-        public float Height { get; }                  // Y（バウンド・ずり落ち）
+        public float Height { get; }                  // Y（吹っ飛び中は 0、ずり落ちで下がる）
         public Vector2 WallNormal { get; }            // Stuck 中のみ有効
         public bool IsSlidingDown { get; }            // 🔵 1.5s〜2.6s
         public Vector3 Scale { get; }                 // 🔵 Stuck 中は StuckScale
@@ -189,6 +188,7 @@ namespace MochiHockey.Core
 
         public event Action<PettanState> StateChanged;
         public event Action Recovered;                // 🔵 「ポンッ！」SE
+        public event Action Bounced;                  // 🔵 壁で跳ね返った瞬間（SE・VFX 用）
 
         /// <summary>被弾開始。Normal 以外で呼ばれたら無視する。🔵</summary>
         public void Begin(Vector2 position, Vector2 launchDirection) { }

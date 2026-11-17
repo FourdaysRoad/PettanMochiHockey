@@ -27,6 +27,7 @@ namespace MochiHockey.Runtime
         private InputAction _move;
         private InputAction _dash;
         private InputAction _shoot;
+        private InputAction _swing;
 
         private void Awake()
         {
@@ -53,6 +54,7 @@ namespace MochiHockey.Runtime
             _move = map.FindAction("Move", throwIfNotFound: true);
             _dash = map.FindAction("Dash", throwIfNotFound: true);
             _shoot = map.FindAction("Shoot", throwIfNotFound: true);
+            _swing = map.FindAction("Swing", throwIfNotFound: true);
             _instance.Enable();
         }
 
@@ -85,6 +87,11 @@ namespace MochiHockey.Runtime
             if (_shoot.WasReleasedThisFrame())
             {
                 _controller.ReleaseShoot();
+            }
+
+            if (_swing.WasPressedThisFrame())
+            {
+                _controller.RequestSwing();
             }
         }
     }

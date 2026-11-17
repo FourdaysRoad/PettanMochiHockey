@@ -496,6 +496,7 @@ GameObject:
   - component: {fileID: 482153251}
   - component: {fileID: 482153250}
   - component: {fileID: 482153249}
+  - component: {fileID: 482153256}
   m_Layer: 0
   m_Name: Player1
   m_TagString: Untagged
@@ -530,6 +531,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MochiHockey.Runtime::MochiHockey.Runtime.PlayerController
   config: {fileID: 11400000, guid: 945c7f6ef050b1b43830dfc8344647b5, type: 2}
+  team: 0
 --- !u!54 &482153251
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -652,6 +654,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &482153256
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 482153248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 708a35ef93824cb48af27c14ef744efe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MochiHockey.Runtime::MochiHockey.Runtime.MalletHitbox
 --- !u!1 &833857681
 GameObject:
   m_ObjectHideFlags: 0
@@ -814,6 +828,7 @@ GameObject:
   - component: {fileID: 1018175136}
   - component: {fileID: 1018175135}
   - component: {fileID: 1018175134}
+  - component: {fileID: 1018175141}
   m_Layer: 0
   m_Name: Player2
   m_TagString: Untagged
@@ -848,6 +863,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MochiHockey.Runtime::MochiHockey.Runtime.PlayerController
   config: {fileID: 11400000, guid: 945c7f6ef050b1b43830dfc8344647b5, type: 2}
+  team: 1
 --- !u!54 &1018175136
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -970,6 +986,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1018175141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1018175133}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 708a35ef93824cb48af27c14ef744efe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MochiHockey.Runtime::MochiHockey.Runtime.MalletHitbox
 --- !u!1 &1212417687
 GameObject:
   m_ObjectHideFlags: 0

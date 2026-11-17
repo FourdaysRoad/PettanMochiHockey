@@ -80,7 +80,10 @@ namespace MochiHockey.Tests.EditMode
 
         private static PettanStateMachine CreateMachine()
         {
-            return new PettanStateMachine(TestSettings.CreatePettan(), TestSettings.CreateRink());
+            // 跳ね返りなし：原点から +X で 1.08 秒に壁、2.6 秒に復帰、3.6 秒まで無敵
+            var settings = TestSettings.CreatePettan();
+            settings.LaunchWallBounces = 0;
+            return new PettanStateMachine(settings, TestSettings.CreateRink());
         }
     }
 }

@@ -23,6 +23,9 @@ namespace MochiHockey.Runtime
         /// <summary>餅の物理・見た目まわり（Runtime だけが使う。Core には渡さない）。</summary>
         public MochiBallConfig MochiBall = new MochiBallConfig();
 
+        /// <summary>杵の当たり判定の大きさ（Runtime だけが使う）。</summary>
+        public MalletConfig Mallet = new MalletConfig();
+
         /// <summary>Core 用の設定に変換する。値がおかしければ InvalidOperationException を投げる。</summary>
         public BalanceSettings ToSettings()
         {
@@ -40,10 +43,9 @@ namespace MochiHockey.Runtime
                 Pettan = new PettanSettings
                 {
                     HitStopDuration = Pettan.HitStopDuration,
-                    LaunchNominalDuration = Pettan.LaunchNominalDuration,
                     LaunchMaxDuration = Pettan.LaunchMaxDuration,
                     LaunchSpeed = Pettan.LaunchSpeed,
-                    LaunchBounceHeight = Pettan.LaunchBounceHeight,
+                    LaunchWallBounces = Pettan.LaunchWallBounces,
                     SlideDownStartTime = Pettan.SlideDownStartTime,
                     RecoverTime = Pettan.RecoverTime,
                     InvincibleEndTime = Pettan.InvincibleEndTime,
@@ -126,17 +128,15 @@ namespace MochiHockey.Runtime
             [Tooltip("被弾直後に止まる秒数")]
             [Min(0f)] public float HitStopDuration = 0.08f;
 
-            [Tooltip("吹っ飛びの標準の秒数（壁に届かなければ延長する）")]
-            [Min(0f)] public float LaunchNominalDuration = 0.6f;
 
-            [Tooltip("仮：吹っ飛びを延長できる上限の秒数")]
-            [Min(0f)] public float LaunchMaxDuration = 1.2f;
+            [Tooltip("仮：吹っ飛びを続けられる上限の秒数（被弾から）。これまでに貼り付けなければその場で復帰する")]
+            [Min(0f)] public float LaunchMaxDuration = 2f;
 
-            [Tooltip("仮：吹っ飛びの直進速度（m/s）")]
-            [Min(0f)] public float LaunchSpeed = 12f;
+            [Tooltip("仮：吹っ飛びの直進速度（m/s）。高さは変えずに水平にまっすぐ飛ぶ")]
+            [Min(0f)] public float LaunchSpeed = 30f;
 
-            [Tooltip("仮：吹っ飛び中に 1 回バウンドする高さ（m）")]
-            [Min(0f)] public float LaunchBounceHeight = 1f;
+            [Tooltip("壁で跳ね返る回数。この回数だけ跳ね返ったあと、次に当たった壁に貼り付く")]
+            [Min(0)] public int LaunchWallBounces = 1;
 
             [Tooltip("被弾からずり落ちが始まるまでの秒数")]
             [Min(0f)] public float SlideDownStartTime = 1.5f;
@@ -152,6 +152,9 @@ namespace MochiHockey.Runtime
 
             [Tooltip("壁に貼り付いている間の大きさ")]
             public Vector3 StuckScale = new Vector3(1.3f, 1.3f, 0.05f);
+
+            [Tooltip("仮：無敵中の点滅の間隔（秒）。Runtime だけが使う")]
+            [Min(0.01f)] public float BlinkInterval = 0.1f;
         }
 
         [Serializable]
@@ -247,6 +250,16 @@ namespace MochiHockey.Runtime
 
             [Tooltip("仮：誰も持っていない餅の減速の強さ（Rigidbody の Linear Damping）。氷の上でも少しずつ止まる")]
             [Min(0f)] public float LinearDamping = 0.5f;
+        }
+
+        [Serializable]
+        public sealed class MalletConfig
+        {
+            [Tooltip("仮：体の中心から、杵の当たり判定の中心までの距離（m）")]
+            [Min(0f)] public float Reach = 1.2f;
+
+            [Tooltip("仮：杵の当たり判定（球）の半径（m）")]
+            [Min(0.01f)] public float Radius = 0.8f;
         }
     }
 }
