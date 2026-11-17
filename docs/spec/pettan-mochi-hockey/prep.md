@@ -12,9 +12,12 @@
 
 - [ ] **Unity ライセンスファイル（.ulf）の取得** 🔵 *PRD 9.2*
   - GameCI のドキュメント「Activation」の手順に従い、Unity Personal ライセンスの `.ulf` ファイルを用意する
+  - Unity Hub でサインインしてライセンスを有効にしていれば、Windows では `C:\ProgramData\Unity\Unity_lic.ulf` にある
   - 関連要件: REQ-061
 - [ ] **GitHub Secrets の登録** 🔵 *PRD 9.2*
   - リポジトリの Settings → Secrets and variables → Actions に `UNITY_LICENSE`（.ulf の中身）、`UNITY_EMAIL`、`UNITY_PASSWORD` を登録する（自分で入力すること）
+  - `UNITY_LICENSE` には .ulf ファイルの中身（XML）を、最初から最後まで丸ごと貼り付ける
+  - 登録すると `.github/workflows/ci.yml` がこの 3 つを読む
   - 関連要件: REQ-061
 - [ ] **GitHub Pages の公開元を「GitHub Actions」にする** 🔵 *PRD 9.2*
   - Settings → Pages → Build and deployment → Source を「GitHub Actions」にする
