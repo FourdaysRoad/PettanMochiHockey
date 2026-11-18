@@ -1,0 +1,110 @@
+/* Menu シーンの見た目。チームは色だけでなく文字（TEAM A / TEAM B）でも示す。 */
+
+.menu-root {
+    flex-grow: 1;
+    background-color: rgb(24, 32, 48);
+    align-items: center;
+    justify-content: center;
+}
+
+.screen {
+    flex-grow: 1;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+.game-title {
+    font-size: 96px;
+    -unity-font-style: bold;
+    color: rgb(255, 248, 232);
+    margin-bottom: 48px;
+}
+
+.press-start {
+    font-size: 36px;
+    color: rgb(255, 214, 102);
+}
+
+.setup-title {
+    font-size: 56px;
+    -unity-font-style: bold;
+    color: rgb(255, 248, 232);
+    margin-bottom: 32px;
+}
+
+.slots {
+    flex-direction: row;
+    justify-content: center;
+    margin-bottom: 32px;
+}
+
+.slot {
+    width: 360px;
+    height: 220px;
+    margin: 0 12px;
+    padding: 16px;
+    border-width: 4px;
+    border-radius: 16px;
+    border-color: rgb(90, 100, 120);
+    background-color: rgb(40, 50, 70);
+    align-items: center;
+    justify-content: space-around;
+}
+
+.slot--joined {
+    background-color: rgb(56, 70, 96);
+}
+
+.slot--team-a {
+    border-color: rgb(96, 170, 255);
+}
+
+.slot--team-b {
+    border-color: rgb(255, 150, 80);
+}
+
+.slot-number {
+    font-size: 56px;
+    -unity-font-style: bold;
+    color: rgb(255, 248, 232);
+}
+
+.slot-device {
+    font-size: 22px;
+    color: rgb(210, 216, 228);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.slot-team {
+    font-size: 26px;
+    -unity-font-style: bold;
+    color: rgb(255, 248, 232);
+}
+
+.slot--team-a .slot-team {
+    color: rgb(150, 200, 255);
+}
+
+.slot--team-b .slot-team {
+    color: rgb(255, 190, 140);
+}
+
+.start-hint {
+    font-size: 36px;
+    -unity-font-style: bold;
+    color: rgb(255, 214, 102);
+    margin-bottom: 24px;
+}
+
+.help {
+    font-size: 24px;
+    color: rgb(190, 198, 214);
+    -unity-text-align: middle-center;
+    margin-bottom: 12px;
+}
+
+.gamepad-hint {
+    color: rgb(160, 220, 170);
+}

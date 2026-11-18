@@ -1,0 +1,42 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="Menu.uss" />
+    <ui:VisualElement name="menu-root" class="menu-root">
+
+        <!-- タイトル画面 -->
+        <ui:VisualElement name="title-screen" class="screen">
+            <ui:Label name="game-title" class="game-title" text="Pettan! MOCHI HOCKEY" />
+            <ui:Label name="press-start" class="press-start" text="Press any key" />
+        </ui:VisualElement>
+
+        <!-- 対戦設定画面 -->
+        <ui:VisualElement name="setup-screen" class="screen">
+            <ui:Label name="setup-title" class="setup-title" text="WHO'S PLAYING?" />
+            <ui:VisualElement name="slots" class="slots">
+                <ui:VisualElement name="slot-0" class="slot">
+                    <ui:Label class="slot-number" text="1P" />
+                    <ui:Label class="slot-device" />
+                    <ui:Label class="slot-team" />
+                </ui:VisualElement>
+                <ui:VisualElement name="slot-1" class="slot">
+                    <ui:Label class="slot-number" text="2P" />
+                    <ui:Label class="slot-device" />
+                    <ui:Label class="slot-team" />
+                </ui:VisualElement>
+                <ui:VisualElement name="slot-2" class="slot">
+                    <ui:Label class="slot-number" text="3P" />
+                    <ui:Label class="slot-device" />
+                    <ui:Label class="slot-team" />
+                </ui:VisualElement>
+                <ui:VisualElement name="slot-3" class="slot">
+                    <ui:Label class="slot-number" text="4P" />
+                    <ui:Label class="slot-device" />
+                    <ui:Label class="slot-team" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:Label name="start-hint" class="start-hint" />
+            <ui:Label name="join-help" class="help" />
+            <ui:Label name="gamepad-hint" class="help gamepad-hint" />
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

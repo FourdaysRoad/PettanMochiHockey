@@ -6,6 +6,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
+using UnityEngine.UIElements;
 
 namespace MochiHockey.Tests.PlayMode
 {
@@ -94,6 +95,34 @@ namespace MochiHockey.Tests.PlayMode
             var players = Players();
             Assert.That(players.Select(p => p.Team), Is.EqualTo(new[] { Team.B, Team.A }));
             Assert.That(players[0].transform.position.x, Is.GreaterThan(0f), "チーム B の 1P が右側にいない");
+        }
+
+        [UnityTest]
+        public IEnumerator MenuScene_TitleThenSetupThenStartsMatch()
+        {
+            yield return SceneManager.LoadSceneAsync("Menu", LoadSceneMode.Single);
+            yield return null;
+
+            var presenter = Object.FindFirstObjectByType<MenuPresenter>();
+            Assert.That(presenter, Is.Not.Null, "Menu シーンに MenuPresenter がない");
+            var root = presenter.GetComponent<UnityEngine.UIElements.UIDocument>().rootVisualElement;
+            Assert.That(presenter.ViewModel.Screen, Is.EqualTo(MenuScreen.Title));
+            Assert.That(root.Q<UnityEngine.UIElements.Label>("game-title").text, Is.EqualTo(UiText.GameTitle));
+
+            presenter.ProceedFromTitle();
+            yield return null;
+            Assert.That(presenter.ViewModel.Screen, Is.EqualTo(MenuScreen.Setup));
+            Assert.That(presenter.JoinManager.AcceptingInput, Is.True);
+
+            presenter.JoinManager.TryJoin(PadA, PlayerInputReader.GamepadScheme);
+            presenter.JoinManager.TryJoin(PadB, PlayerInputReader.GamepadScheme);
+            Assert.That(root.Q<UnityEngine.UIElements.Label>("start-hint").text, Is.EqualTo(UiText.PressToStart));
+
+            Assert.That(presenter.JoinManager.StartMatch(), Is.True);
+            yield return null;
+            yield return null;
+            Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo("Match"));
+            Assert.That(Players().Length, Is.EqualTo(2));
         }
 
         private static PlayerController[] Players()
