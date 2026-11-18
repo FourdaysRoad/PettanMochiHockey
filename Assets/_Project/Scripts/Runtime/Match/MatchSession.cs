@@ -30,6 +30,20 @@ namespace MochiHockey.Runtime
             return s_current;
         }
 
+        /// <summary>抜けたデバイスの代わりに挿されたデバイスを、その参加者のデバイスにする（もう一度遊ぶときに使う）。</summary>
+        public void ReplaceDevice(int oldDeviceId, int newDeviceId, string controlScheme)
+        {
+            for (var i = 0; i < _players.Count; i++)
+            {
+                var player = _players[i];
+                if (player.DeviceId == oldDeviceId && player.ControlScheme == controlScheme)
+                {
+                    _players[i] = new JoinedPlayer(player.Slot, newDeviceId, controlScheme, player.Team);
+                    return;
+                }
+            }
+        }
+
         /// <summary>保存した参加者を捨てる（タイトルに戻るときなど）。</summary>
         public static void Clear()
         {

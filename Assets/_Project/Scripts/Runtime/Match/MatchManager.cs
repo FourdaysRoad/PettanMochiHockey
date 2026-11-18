@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using MochiHockey.Core;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 namespace MochiHockey.Runtime
@@ -13,6 +14,8 @@ namespace MochiHockey.Runtime
     ///   （プレイヤーの位置は戻さない）
     /// - ポーズ：Time.timeScale = 0 にする（Core に渡す経過時間も 0 になる）
     /// - 試合終了：プレイヤーを止める。PlayAgain で同じ参加者でやり直し、GoToTitle で Menu へ戻る
+    /// - ゲームパッドが抜けたら自動でポーズし、次につながったゲームパッドをそのプレイヤーに割り当て直す
+    ///   （ブラウザでは挿し直したパッドが別のデバイスになることがあるため）。再開はポーズの解除で行う
     /// </summary>
     [DefaultExecutionOrder(-50)]
     public sealed class MatchManager : MonoBehaviour
@@ -23,6 +26,9 @@ namespace MochiHockey.Runtime
 
         private readonly List<(PlayerController player, Vector3 position, Quaternion rotation)> _starts =
             new List<(PlayerController, Vector3, Quaternion)>();
+
+        private readonly List<(PlayerInputReader reader, int lostDeviceId)> _waitingForPad =
+            new List<(PlayerInputReader, int)>();
 
         private GoalPost[] _goals = Array.Empty<GoalPost>();
         private Vector3 _ballStart;
@@ -44,6 +50,9 @@ namespace MochiHockey.Runtime
         public MatchRules Rules { get; private set; }
 
         public bool IsPaused { get; private set; }
+
+        /// <summary>ゲームパッドが抜けて、挿し直しを待っているプレイヤーの数。</summary>
+        public int DisconnectedPlayerCount => _waitingForPad.Count;
 
         /// <summary>ポーズの切り替え（true = 止めた）。</summary>
         public event Action<bool> PauseChanged;
@@ -80,11 +89,14 @@ namespace MochiHockey.Runtime
                 goal.BallEntered += OnBallEntered;
             }
 
+            InputSystem.onDeviceChange += OnDeviceChange;
             Rules.StartKickoff();
         }
 
         private void OnDestroy()
         {
+            InputSystem.onDeviceChange -= OnDeviceChange;
+
             foreach (var goal in _goals)
             {
                 if (goal != null)
@@ -149,6 +161,89 @@ namespace MochiHockey.Runtime
             SetPaused(false);
             MatchSession.Clear();
             SceneManager.LoadScene(titleSceneName);
+        }
+
+        private void OnDeviceChange(InputDevice device, InputDeviceChange change)
+        {
+            if (!(device is Gamepad))
+            {
+                return;
+            }
+
+            switch (change)
+            {
+                case InputDeviceChange.Removed:
+                case InputDeviceChange.Disconnected:
+                    OnPadLost(device.deviceId);
+                    break;
+                case InputDeviceChange.Added:
+                case InputDeviceChange.Reconnected:
+                    OnPadFound(device.deviceId);
+                    break;
+            }
+        }
+
+        private void OnPadLost(int deviceId)
+        {
+            var lost = false;
+            foreach (var (player, _, _) in _starts)
+            {
+                var reader = player != null ? player.GetComponent<PlayerInputReader>() : null;
+                if (reader != null && reader.ControlScheme == PlayerInputReader.GamepadScheme
+                    && reader.DeviceId == deviceId && reader.HasDevice)
+                {
+                    reader.DropDevice();
+                    _waitingForPad.Add((reader, deviceId));
+                    lost = true;
+                }
+            }
+
+            if (lost)
+            {
+                SetPaused(true);
+            }
+        }
+
+        private void OnPadFound(int deviceId)
+        {
+            if (_waitingForPad.Count == 0 || IsUsedByAnyone(deviceId))
+            {
+                return;
+            }
+
+            // 同じパッドが戻ってきたらその人に、別のパッドなら抜けた順に割り当てる
+            var index = _waitingForPad.FindIndex(w => w.lostDeviceId == deviceId);
+            if (index < 0)
+            {
+                index = 0;
+            }
+
+            var (reader, lostDeviceId) = _waitingForPad[index];
+            _waitingForPad.RemoveAt(index);
+            if (reader == null)
+            {
+                return;
+            }
+
+            reader.Configure(PlayerInputReader.GamepadScheme, deviceId);
+            if (MatchSession.Current != null)
+            {
+                MatchSession.Current.ReplaceDevice(lostDeviceId, deviceId, PlayerInputReader.GamepadScheme);
+            }
+        }
+
+        private bool IsUsedByAnyone(int deviceId)
+        {
+            foreach (var (player, _, _) in _starts)
+            {
+                var reader = player != null ? player.GetComponent<PlayerInputReader>() : null;
+                if (reader != null && reader.HasDevice && reader.DeviceId == deviceId)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void OnPhaseChanged(MatchPhase phase)

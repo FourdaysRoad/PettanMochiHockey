@@ -27,6 +27,20 @@ namespace MochiHockey.Runtime
 
         private int _deviceId = AnyDevice;
         private PlayerController _controller;
+
+        public InputActionAsset Actions
+        {
+            get => actions;
+            set => actions = value;
+        }
+
+        public string ControlScheme => controlScheme;
+
+        /// <summary>読むデバイスの番号（決めていなければ AnyDevice）。</summary>
+        public int DeviceId => _deviceId;
+
+        /// <summary>デバイスにつながって入力を読めているか。</summary>
+        public bool HasDevice => _instance != null;
         private InputActionAsset _instance;
         private InputAction _move;
         private InputAction _dash;
@@ -111,6 +125,12 @@ namespace MochiHockey.Runtime
             {
                 OnEnable();
             }
+        }
+
+        /// <summary>デバイスが抜けた。入力を止める（Configure で別のデバイスを渡されるまで動かない）。</summary>
+        public void DropDevice()
+        {
+            OnDisable();
         }
 
         private InputDevice ResolveDevice()

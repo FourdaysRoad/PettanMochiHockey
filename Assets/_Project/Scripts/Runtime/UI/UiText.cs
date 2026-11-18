@@ -43,6 +43,8 @@ namespace MochiHockey.Runtime
         public const string Resume = "Resume";
         public const string ToTitle = "Back to title";
         public const string PauseHelp = "Resume: Esc / Start      Title: Backspace / Select";
+        public const string ControllerDisconnected = "CONTROLLER DISCONNECTED";
+        public const string ReconnectHelp = "Plug the controller back in (or connect another one), then press Esc / Start to resume";
 
         public const string PlayAgain = "Play again";
         public const string ResultHelp = "Play again: Enter / A      Title: Esc / B";

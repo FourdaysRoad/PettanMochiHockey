@@ -23,6 +23,8 @@ namespace MochiHockey.Runtime
         private VisualElement _goalPanel;
         private Label _goalDetail;
         private VisualElement _pauseOverlay;
+        private Label _pauseTitle;
+        private Label _pauseHelp;
         private VisualElement _resultOverlay;
         private Label _resultTitle;
         private Label _resultScore;
@@ -56,8 +58,10 @@ namespace MochiHockey.Runtime
             root.Q<Label>("team-b-name").text = UiText.TeamNameB;
             _kickoff.text = UiText.Ready;
             root.Q<Label>("goal-text").text = UiText.Goal;
-            root.Q<Label>("pause-title").text = UiText.Paused;
-            root.Q<Label>("pause-help").text = UiText.PauseHelp;
+            _pauseTitle = root.Q<Label>("pause-title");
+            _pauseHelp = root.Q<Label>("pause-help");
+            _pauseTitle.text = UiText.Paused;
+            _pauseHelp.text = UiText.PauseHelp;
             root.Q<Label>("result-help").text = UiText.ResultHelp;
 
             var resume = root.Q<Button>("resume-button");
@@ -144,6 +148,9 @@ namespace MochiHockey.Runtime
             }
 
             Show(_pauseOverlay, match.IsPaused && !showResult);
+            var disconnected = match.DisconnectedPlayerCount > 0;
+            _pauseTitle.text = disconnected ? UiText.ControllerDisconnected : UiText.Paused;
+            _pauseHelp.text = disconnected ? UiText.ReconnectHelp : UiText.PauseHelp;
         }
 
         private void HandleMenuInput()
