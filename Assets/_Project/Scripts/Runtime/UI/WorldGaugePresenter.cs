@@ -14,6 +14,7 @@ namespace MochiHockey.Runtime
         [SerializeField] private MochiBall ball;
 
         private readonly Dictionary<PlayerController, PlayerGauge> _players = new Dictionary<PlayerController, PlayerGauge>();
+        private readonly Dictionary<PlayerController, DizzyStars> _stars = new Dictionary<PlayerController, DizzyStars>();
 
         public MochiBall Ball
         {
@@ -25,6 +26,10 @@ namespace MochiHockey.Runtime
 
         public PlayerGauge GaugeOf(PlayerController player) =>
             player != null && _players.TryGetValue(player, out var gauge) ? gauge : null;
+
+        /// <summary>そのプレイヤーのピヨり（頭の上の星）。</summary>
+        public DizzyStars StarsOf(PlayerController player) =>
+            player != null && _stars.TryGetValue(player, out var stars) ? stars : null;
 
         private void Start()
         {
@@ -41,6 +46,7 @@ namespace MochiHockey.Runtime
             foreach (var player in FindObjectsByType<PlayerController>(FindObjectsSortMode.None))
             {
                 _players[player] = PlayerGauge.Create(player);
+                _stars[player] = DizzyStars.Create(player);
             }
         }
 
@@ -59,6 +65,14 @@ namespace MochiHockey.Runtime
                     gauge.Refresh();
                 }
             }
+
+            foreach (var stars in _stars.Values)
+            {
+                if (stars != null)
+                {
+                    stars.Refresh(Time.deltaTime);
+                }
+            }
         }
 
         private void OnDestroy()
@@ -73,6 +87,14 @@ namespace MochiHockey.Runtime
                 if (gauge != null)
                 {
                     Destroy(gauge.gameObject);
+                }
+            }
+
+            foreach (var stars in _stars.Values)
+            {
+                if (stars != null)
+                {
+                    Destroy(stars.gameObject);
                 }
             }
         }

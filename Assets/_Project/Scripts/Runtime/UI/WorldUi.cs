@@ -13,6 +13,7 @@ namespace MochiHockey.Runtime
 
         private static Sprite s_white;
         private static Sprite s_ring;
+        private static Sprite s_star;
         private static Font s_font;
 
         public static Font Font => s_font != null ? s_font : s_font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
@@ -79,6 +80,14 @@ namespace MochiHockey.Runtime
             return image;
         }
 
+        public static Image CreateStar(Transform parent, string name, Vector2 position, float size, Color color)
+        {
+            var image = CreateRect(name, parent, position, new Vector2(size, size)).gameObject.AddComponent<Image>();
+            image.sprite = Star;
+            image.color = color;
+            return image;
+        }
+
         private static Sprite White
         {
             get
@@ -91,6 +100,62 @@ namespace MochiHockey.Runtime
 
                 return s_white;
             }
+        }
+
+        /// <summary>白い 5 つ角の星の画像（色は Image.color で付ける）。</summary>
+        private static Sprite Star
+        {
+            get
+            {
+                if (s_star != null)
+                {
+                    return s_star;
+                }
+
+                const int size = 64;
+                var texture = new Texture2D(size, size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
+                var center = new Vector2(size / 2f - 0.5f, size / 2f - 0.5f);
+                var outer = size / 2f - 1f;
+                var inner = outer * 0.45f;
+                var points = new Vector2[10];
+                for (var i = 0; i < points.Length; i++)
+                {
+                    var angle = Mathf.PI / 2f + i * Mathf.PI / 5f;
+                    var radius = i % 2 == 0 ? outer : inner;
+                    points[i] = center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
+                }
+
+                for (var y = 0; y < size; y++)
+                {
+                    for (var x = 0; x < size; x++)
+                    {
+                        var inside = IsInside(new Vector2(x, y), points);
+                        texture.SetPixel(x, y, new Color(1f, 1f, 1f, inside ? 1f : 0f));
+                    }
+                }
+
+                texture.Apply();
+                s_star = Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
+                return s_star;
+            }
+        }
+
+        /// <summary>点が多角形の内側か（偶奇判定）。</summary>
+        private static bool IsInside(Vector2 point, Vector2[] polygon)
+        {
+            var inside = false;
+            for (int i = 0, j = polygon.Length - 1; i < polygon.Length; j = i++)
+            {
+                var a = polygon[i];
+                var b = polygon[j];
+                if ((a.y > point.y) != (b.y > point.y)
+                    && point.x < (b.x - a.x) * (point.y - a.y) / (b.y - a.y) + a.x)
+                {
+                    inside = !inside;
+                }
+            }
+
+            return inside;
         }
 
         /// <summary>白い輪の画像（色は Image.color で付ける）。</summary>

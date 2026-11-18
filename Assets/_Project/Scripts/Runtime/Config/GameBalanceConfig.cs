@@ -158,6 +158,9 @@ namespace MochiHockey.Runtime
 
             [Tooltip("仮：無敵中の点滅の間隔（秒）。Runtime だけが使う")]
             [Min(0.01f)] public float BlinkInterval = 0.1f;
+
+            [Tooltip("仮：ピヨり（無敵中に頭の上で回る星）の回る速さ（度/秒）。Runtime だけが使う")]
+            [Min(0f)] public float DizzySpinSpeed = 240f;
         }
 
         [Serializable]

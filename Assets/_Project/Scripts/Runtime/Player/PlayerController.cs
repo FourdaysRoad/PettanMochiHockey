@@ -96,6 +96,9 @@ namespace MochiHockey.Runtime
 
         public bool IsSwinging => _swingRemaining > 0f;
 
+        /// <summary>杵を振り始めた（見た目のアニメーション用）。</summary>
+        public event System.Action Swung;
+
         private void Awake()
         {
             Id = ++s_nextId;
@@ -165,6 +168,7 @@ namespace MochiHockey.Runtime
             _swingRemaining = _settings.SwingActiveTime;
             _swingHitSomeone = false;
             _mallet?.BeginSwing();
+            Swung?.Invoke();
         }
 
         /// <summary>

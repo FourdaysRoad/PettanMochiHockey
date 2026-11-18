@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 2353613373618407952}
   - component: {fileID: 4167193173242048424}
   - component: {fileID: 3239776887704408750}
+  - component: {fileID: 3646824176305154717}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -185,3 +186,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 708a35ef93824cb48af27c14ef744efe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: MochiHockey.Runtime::MochiHockey.Runtime.MalletHitbox
+--- !u!114 &3646824176305154717
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6527071138699680836}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecf5803e0aba69644bdd15d3a07f411c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MochiHockey.Runtime::MochiHockey.Runtime.PlayerVisual
+  profile: {fileID: 0}
+  useLocalProfile: 1

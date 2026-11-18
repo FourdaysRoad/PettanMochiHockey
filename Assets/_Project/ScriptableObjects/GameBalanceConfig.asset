@@ -36,6 +36,7 @@ MonoBehaviour:
     SlideDownSpeed: 0.5
     StuckScale: {x: 1.3, y: 1.3, z: 0.05}
     BlinkInterval: 0.1
+    DizzySpinSpeed: 240
   Match:
     MatchDuration: 180
     KickoffCountdown: 3
