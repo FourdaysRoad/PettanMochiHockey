@@ -34,9 +34,9 @@
 
 ## 全体進捗
 
-- [ ] Phase 1: 基盤構築
-- [ ] Phase 2: プロトタイプ
-- [ ] Phase 3: ルール完成
+- [x] Phase 1: 基盤構築
+- [x] Phase 2: プロトタイプ
+- [x] Phase 3: ルール完成
 - [ ] Phase 4: ポリッシュ
 
 ## マイルストーン
@@ -91,7 +91,7 @@ TASK-0001 → TASK-0004
 - [x] [TASK-0014: プロトタイプリンクと PlayerController（移動・ダッシュ）](TASK-0014.md) - 8h (TDD) 🔵
 - [x] [TASK-0015: MochiBall ともち米（ドリブル・シュート・成長）](TASK-0015.md) - 8h (TDD) 🔵
 - [x] [TASK-0016: MalletHitbox と被弾の反映（Pettan）](TASK-0016.md) - 8h (TDD) 🔵
-- [ ] [TASK-0017: プロトタイプ統合確認（Step 1 完了）](TASK-0017.md) - 8h (DIRECT) 🔵
+- [x] [TASK-0017: プロトタイプ統合確認（Step 1 完了）](TASK-0017.md) - 8h (DIRECT) 🔵
 
 ### 依存関係
 
@@ -135,7 +135,7 @@ TASK-0016 → TASK-0017
 - [x] [TASK-0023: Match HUD・ポーズ・リザルト画面](TASK-0023.md) - 8h (TDD) 🔵
 - [x] [TASK-0024: ワールド空間ゲージ（餅の頭上・足元リング）](TASK-0024.md) - 8h (DIRECT) 🔵
 - [x] [TASK-0025: カメラ（Cinemachine）と画面サイズ・フルスクリーン](TASK-0025.md) - 8h (DIRECT) 🔵
-- [ ] [TASK-0026: 4 人ゲームパッド対戦の統合確認（Step 2 完了）](TASK-0026.md) - 8h (DIRECT) 🔵
+- [x] [TASK-0026: 4 人ゲームパッド対戦の統合確認（Step 2 完了）](TASK-0026.md) - 8h (DIRECT) 🔵
 
 ### 依存関係
 
