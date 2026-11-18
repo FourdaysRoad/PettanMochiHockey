@@ -40,6 +40,7 @@ MonoBehaviour:
     MatchDuration: 180
     KickoffCountdown: 3
     MochiRespawnDelay: 1
+    ResultInputDelay: 1
   Rice:
     MinCount: 5
     MaxCount: 10

@@ -1,0 +1,43 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="MatchHud.uss" />
+    <ui:VisualElement name="hud-root" class="hud-root" picking-mode="Ignore">
+
+        <!-- 画面上部中央：スコアと残り時間 -->
+        <ui:VisualElement name="top-bar" class="top-bar" picking-mode="Ignore">
+            <ui:VisualElement class="team-score team-score--a" picking-mode="Ignore">
+                <ui:Label name="team-a-name" class="team-name" text="TEAM A" />
+                <ui:Label name="score-a" class="score" text="0" />
+            </ui:VisualElement>
+            <ui:Label name="timer" class="timer" text="3:00" />
+            <ui:VisualElement class="team-score team-score--b" picking-mode="Ignore">
+                <ui:Label name="team-b-name" class="team-name" text="TEAM B" />
+                <ui:Label name="score-b" class="score" text="0" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- 中央：キックオフ・GOAL! -->
+        <ui:Label name="kickoff" class="center-text kickoff" text="READY..." picking-mode="Ignore" />
+        <ui:VisualElement name="goal-panel" class="goal-panel" picking-mode="Ignore">
+            <ui:Label name="goal-text" class="goal-text" text="GOAL!" />
+            <ui:Label name="goal-detail" class="goal-detail" />
+        </ui:VisualElement>
+
+        <!-- ポーズメニュー -->
+        <ui:VisualElement name="pause-overlay" class="overlay">
+            <ui:Label name="pause-title" class="overlay-title" text="PAUSED" />
+            <ui:Button name="resume-button" class="menu-button" text="Resume" />
+            <ui:Button name="pause-title-button" class="menu-button" text="Back to title" />
+            <ui:Label name="pause-help" class="overlay-help" />
+        </ui:VisualElement>
+
+        <!-- リザルト -->
+        <ui:VisualElement name="result-overlay" class="overlay">
+            <ui:Label name="result-title" class="overlay-title result-title" />
+            <ui:Label name="result-score" class="result-score" />
+            <ui:Button name="again-button" class="menu-button" text="Play again" />
+            <ui:Button name="result-title-button" class="menu-button" text="Back to title" />
+            <ui:Label name="result-help" class="overlay-help" />
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

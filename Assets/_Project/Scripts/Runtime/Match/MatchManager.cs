@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using MochiHockey.Core;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace MochiHockey.Runtime
 {
@@ -11,13 +12,14 @@ namespace MochiHockey.Runtime
     /// - ゴール：GoalPost の知らせを MatchRules に渡し、得点が入ったら餅を消す。再出現の知らせで中央に Lv.1 を出す
     ///   （プレイヤーの位置は戻さない）
     /// - ポーズ：Time.timeScale = 0 にする（Core に渡す経過時間も 0 になる）
-    /// - 試合終了：プレイヤーを止める
+    /// - 試合終了：プレイヤーを止める。PlayAgain で同じ参加者でやり直し、GoToTitle で Menu へ戻る
     /// </summary>
     [DefaultExecutionOrder(-50)]
     public sealed class MatchManager : MonoBehaviour
     {
         [SerializeField] private GameBalanceConfig config;
         [SerializeField] private MochiBall ball;
+        [SerializeField] private string titleSceneName = "Menu";
 
         private readonly List<(PlayerController player, Vector3 position, Quaternion rotation)> _starts =
             new List<(PlayerController, Vector3, Quaternion)>();
@@ -42,6 +44,9 @@ namespace MochiHockey.Runtime
         public MatchRules Rules { get; private set; }
 
         public bool IsPaused { get; private set; }
+
+        /// <summary>ポーズの切り替え（true = 止めた）。</summary>
+        public event Action<bool> PauseChanged;
 
         private void Awake()
         {
@@ -127,6 +132,23 @@ namespace MochiHockey.Runtime
             {
                 Time.timeScale = _timeScaleBeforePause;
             }
+
+            PauseChanged?.Invoke(paused);
+        }
+
+        /// <summary>同じ参加者でもう一度（Match シーンを読み込み直す）。</summary>
+        public void PlayAgain()
+        {
+            SetPaused(false);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+
+        /// <summary>タイトル（Menu シーン）へ戻る。参加者は選び直すので捨てる。</summary>
+        public void GoToTitle()
+        {
+            SetPaused(false);
+            MatchSession.Clear();
+            SceneManager.LoadScene(titleSceneName);
         }
 
         private void OnPhaseChanged(MatchPhase phase)

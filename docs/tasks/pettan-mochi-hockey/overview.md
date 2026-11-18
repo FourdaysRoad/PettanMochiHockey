@@ -132,7 +132,7 @@ TASK-0016 → TASK-0017
 - [x] [TASK-0020: GoalPost と MatchManager（試合進行）](TASK-0020.md) - 8h (TDD) 🔵
 - [x] [TASK-0021: MatchSession と PlayerJoinManager（参加受付）](TASK-0021.md) - 8h (TDD) 🔵
 - [x] [TASK-0022: Menu シーン UI（タイトル・対戦設定）](TASK-0022.md) - 8h (TDD) 🔵
-- [ ] [TASK-0023: Match HUD・ポーズ・リザルト画面](TASK-0023.md) - 8h (TDD) 🔵
+- [x] [TASK-0023: Match HUD・ポーズ・リザルト画面](TASK-0023.md) - 8h (TDD) 🔵
 - [ ] [TASK-0024: ワールド空間ゲージ（餅の頭上・足元リング）](TASK-0024.md) - 8h (DIRECT) 🔵
 - [ ] [TASK-0025: カメラ（Cinemachine）と画面サイズ・フルスクリーン](TASK-0025.md) - 8h (DIRECT) 🔵
 - [ ] [TASK-0026: 4 人ゲームパッド対戦の統合確認（Step 2 完了）](TASK-0026.md) - 8h (DIRECT) 🔵

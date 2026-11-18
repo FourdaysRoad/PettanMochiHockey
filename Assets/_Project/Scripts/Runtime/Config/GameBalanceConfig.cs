@@ -168,6 +168,9 @@ namespace MochiHockey.Runtime
 
             [Tooltip("ゴール後に餅が中央に戻るまでの秒数")]
             [Min(0f)] public float MochiRespawnDelay = 1f;
+
+            [Tooltip("仮：リザルト画面が出てから、ボタン（もう一度／タイトルへ）を受け付けるまでの秒数。試合中の連打で押されないように。Runtime だけが使う")]
+            [Min(0f)] public float ResultInputDelay = 1f;
         }
 
         [Serializable]

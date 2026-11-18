@@ -5,6 +5,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
+using UnityEngine.UIElements;
 
 namespace MochiHockey.Tests.PlayMode
 {
@@ -95,6 +96,39 @@ namespace MochiHockey.Tests.PlayMode
                 Assert.That(Mathf.Sign(ownGoal.transform.position.x), Is.EqualTo(Mathf.Sign(player.transform.position.x)),
                     $"{player.name}（チーム {player.Team}）のゴールが反対側にある");
             }
+        }
+
+        [UnityTest]
+        public IEnumerator MatchScene_HudShowsScoreAndTime()
+        {
+            yield return SceneManager.LoadSceneAsync("Match", LoadSceneMode.Single);
+            yield return MatchSceneHelper.WaitUntilPlaying();
+            yield return null;
+
+            var hud = Object.FindFirstObjectByType<HudPresenter>();
+            Assert.That(hud, Is.Not.Null, "Match シーンに HudPresenter がない");
+            Assert.That(hud.enabled, Is.True, "HudPresenter の Match が入っていない");
+            var root = hud.GetComponent<UnityEngine.UIElements.UIDocument>().rootVisualElement;
+            Assert.That(root.Q<UnityEngine.UIElements.Label>("score-a").text, Is.EqualTo("0"));
+            StringAssert.StartsWith("2:5", root.Q<UnityEngine.UIElements.Label>("timer").text);
+        }
+
+        [UnityTest]
+        public IEnumerator MatchScene_PlayAgainReloadsMatch()
+        {
+            yield return SceneManager.LoadSceneAsync("Match", LoadSceneMode.Single);
+            yield return MatchSceneHelper.WaitUntilPlaying();
+            var before = Object.FindFirstObjectByType<MatchManager>();
+
+            before.PlayAgain();
+            yield return null;
+            yield return null;
+
+            var after = Object.FindFirstObjectByType<MatchManager>();
+            Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo("Match"));
+            Assert.That(after, Is.Not.Null);
+            Assert.That(after, Is.Not.SameAs(before));
+            Assert.That(after.Rules.Phase, Is.EqualTo(MochiHockey.Core.MatchPhase.Kickoff));
         }
 
         [UnityTest]

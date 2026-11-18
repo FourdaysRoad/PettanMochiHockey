@@ -27,5 +27,22 @@ namespace MochiHockey.Runtime
         public const string NeedTwoOrFour = "2 players (1 vs 1) or 4 players (2 vs 2) needed";
         public const string TeamsMustBeEven = "Teams must be even - move left / right to switch";
         public const string PressToStart = "Press ENTER or START to play!";
+
+        // ---- 試合中（HUD・ポーズ・リザルト）----
+
+        public const string TeamNameA = "TEAM A";
+        public const string TeamNameB = "TEAM B";
+        public const string Ready = "READY...";
+        public const string SuddenDeath = "SUDDEN DEATH";
+        public const string Goal = "GOAL!";
+        public const string Wins = "WINS!";
+
+        public const string Paused = "PAUSED";
+        public const string Resume = "Resume";
+        public const string ToTitle = "Back to title";
+        public const string PauseHelp = "Resume: Esc / Start      Title: Backspace / Select";
+
+        public const string PlayAgain = "Play again";
+        public const string ResultHelp = "Play again: Enter / A      Title: Esc / B";
     }
 }
