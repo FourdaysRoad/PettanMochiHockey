@@ -77,3 +77,10 @@ MonoBehaviour:
   Mallet:
     Reach: 1.2
     Radius: 0.8
+  Camera:
+    Pitch: 55
+    FramingSize: 0.75
+    MinDistance: 14
+    MaxDistance: 34
+    Damping: 0.6
+    PlayerRadius: 1.5

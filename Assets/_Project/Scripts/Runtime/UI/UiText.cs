@@ -14,7 +14,7 @@ namespace MochiHockey.Runtime
         public const string SetupTitle = "WHO'S PLAYING?";
         public const string JoinHelp =
             "Join:  1P = J   /   2P = Numpad 1   /   Gamepad = A\n" +
-            "Switch team:  move left / right        Leave:  K / Numpad 2 / B";
+            "Switch team:  move left / right        Leave:  K / Numpad 2 / B        Fullscreen:  F";
         public const string GamepadHint =
             "Gamepad not showing up? Press any button on it once so the browser can detect it.";
 

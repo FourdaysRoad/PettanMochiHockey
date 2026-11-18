@@ -244,6 +244,7 @@ GameObject:
   - component: {fileID: 46329740}
   - component: {fileID: 46329739}
   - component: {fileID: 46329742}
+  - component: {fileID: 46329743}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -369,6 +370,19 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &46329743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 46329738}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cd28fce5631e704d96493ac0c9d5f17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MochiHockey.Runtime::MochiHockey.Runtime.CameraRig
+  config: {fileID: 11400000, guid: 945c7f6ef050b1b43830dfc8344647b5, type: 2}
 --- !u!1 &52748308
 GameObject:
   m_ObjectHideFlags: 0

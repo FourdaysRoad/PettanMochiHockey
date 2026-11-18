@@ -135,6 +135,31 @@ namespace MochiHockey.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator MatchScene_CameraFramesEveryPlayerAndTheBall()
+        {
+            yield return SceneManager.LoadSceneAsync("Match", LoadSceneMode.Single);
+            yield return MatchSceneHelper.WaitUntilPlaying();
+            yield return new WaitForSeconds(0.5f);
+
+            var camera = Camera.main;
+            var rig = camera != null ? camera.GetComponent<CameraRig>() : null;
+            Assert.That(rig, Is.Not.Null, "Main Camera に CameraRig がない");
+            Assert.That(rig.enabled, Is.True, "CameraRig の Config が入っていない");
+            Assert.That(rig.VirtualCamera, Is.Not.Null);
+
+            var targets = Object.FindObjectsByType<PlayerController>(FindObjectsSortMode.None)
+                .Select(p => p.transform)
+                .Append(Object.FindFirstObjectByType<MochiBall>().transform);
+            foreach (var target in targets)
+            {
+                Assert.That(rig.IsFraming(target), Is.True, $"{target.name} が映す対象に入っていない");
+                var v = camera.WorldToViewportPoint(target.position);
+                Assert.That(v.z > 0f && v.x >= 0f && v.x <= 1f && v.y >= 0f && v.y <= 1f, Is.True,
+                    $"{target.name} が画面に映っていない（{v}）");
+            }
+        }
+
+        [UnityTest]
         public IEnumerator MatchScene_PlayAgainReloadsMatch()
         {
             yield return SceneManager.LoadSceneAsync("Match", LoadSceneMode.Single);

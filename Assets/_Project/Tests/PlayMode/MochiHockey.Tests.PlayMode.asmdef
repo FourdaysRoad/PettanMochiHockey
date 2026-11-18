@@ -6,7 +6,8 @@
         "MochiHockey.Core",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "UnityEngine.UI"
+        "UnityEngine.UI",
+        "Unity.Cinemachine"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

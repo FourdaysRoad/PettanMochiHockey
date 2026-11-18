@@ -26,6 +26,9 @@ namespace MochiHockey.Runtime
         /// <summary>杵の当たり判定の大きさ（Runtime だけが使う）。</summary>
         public MalletConfig Mallet = new MalletConfig();
 
+        /// <summary>カメラ（Runtime だけが使う）。</summary>
+        public CameraConfig Camera = new CameraConfig();
+
         /// <summary>Core 用の設定に変換する。値がおかしければ InvalidOperationException を投げる。</summary>
         public BalanceSettings ToSettings()
         {
@@ -266,6 +269,28 @@ namespace MochiHockey.Runtime
 
             [Tooltip("仮：杵の当たり判定（球）の半径（m）")]
             [Min(0.01f)] public float Radius = 0.8f;
+        }
+
+        [Serializable]
+        public sealed class CameraConfig
+        {
+            [Tooltip("仮：見下ろす角度（度）。90 で真上から")]
+            [Range(20f, 90f)] public float Pitch = 55f;
+
+            [Tooltip("仮：映すものを画面のどれだけに収めるか（0〜1）。小さいほど余白が広い")]
+            [Range(0.1f, 1f)] public float FramingSize = 0.75f;
+
+            [Tooltip("仮：カメラが近づける最小の距離（m）。これより寄らない")]
+            [Min(1f)] public float MinDistance = 14f;
+
+            [Tooltip("仮：カメラが離れられる最大の距離（m）。これより引かない")]
+            [Min(1f)] public float MaxDistance = 34f;
+
+            [Tooltip("仮：カメラが追いかける遅れ（秒）。0 ですぐ")]
+            [Min(0f)] public float Damping = 0.6f;
+
+            [Tooltip("仮：画面に収めるときに考えるプレイヤーの大きさ（半径 m）")]
+            [Min(0f)] public float PlayerRadius = 1.5f;
         }
     }
 }

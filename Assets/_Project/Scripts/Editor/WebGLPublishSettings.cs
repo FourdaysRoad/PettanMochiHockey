@@ -7,6 +7,7 @@ namespace MochiHockey.Editor
     /// GitHub Pages で動かすための WebGL 公開設定をまとめて適用する。
     /// Pages は "Content-Encoding: br" を返せないため、Brotli のまま
     /// Decompression Fallback（ブラウザ側の JavaScript で展開）を有効にする。
+    /// ブラウザのウィンドウに合わせて 16:9 で表示する WebGL テンプレート（Assets/WebGLTemplates/MochiHockey）を使う。
     /// </summary>
     public static class WebGLPublishSettings
     {
@@ -15,8 +16,9 @@ namespace MochiHockey.Editor
         {
             PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
             PlayerSettings.WebGL.decompressionFallback = true;
+            PlayerSettings.WebGL.template = "PROJECT:MochiHockey";
             AssetDatabase.SaveAssets();
-            Debug.Log("[MochiHockey] WebGL settings applied: Brotli + Decompression Fallback");
+            Debug.Log("[MochiHockey] WebGL settings applied: Brotli + Decompression Fallback + MochiHockey template");
         }
     }
 }
