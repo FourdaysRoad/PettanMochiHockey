@@ -154,6 +154,7 @@ namespace MochiHockey.Tests.EditMode
             StartPlaying();
 
             _rules.RegisterGoal(Team.A, MochiLevel.Lv2);
+            _rules.Tick(_settings.MochiRespawnDelay);
             _rules.RegisterGoal(Team.A, MochiLevel.Lv1);
 
             Assert.That(_rules.GetScore(Team.B), Is.EqualTo(3));
@@ -177,9 +178,11 @@ namespace MochiHockey.Tests.EditMode
         {
             StartPlaying();
             _rules.RegisterGoal(Team.A, MochiLevel.Lv2); // B 2 点
+            _rules.Tick(1f);
             _rules.RegisterGoal(Team.B, MochiLevel.Lv1); // A 1 点
+            _rules.Tick(1f);
 
-            _rules.Tick(179.9f);
+            _rules.Tick(177.9f);
             Assert.That(_rules.Phase, Is.EqualTo(MatchPhase.Playing));
             Assert.That(_rules.Winner, Is.Null);
 
@@ -200,7 +203,10 @@ namespace MochiHockey.Tests.EditMode
 
             Assert.That(_rules.Phase, Is.EqualTo(MatchPhase.Finished));
             Assert.That(_rules.Winner, Is.EqualTo(Team.A));
-            Assert.That(_phases, Is.EqualTo(new[] { MatchPhase.Kickoff, MatchPhase.Playing, MatchPhase.Finished }));
+            Assert.That(_phases, Is.EqualTo(new[]
+            {
+                MatchPhase.Kickoff, MatchPhase.Playing, MatchPhase.MochiRespawning, MatchPhase.Playing, MatchPhase.Finished,
+            }));
         }
 
         [Test]

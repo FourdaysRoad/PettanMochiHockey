@@ -6,7 +6,10 @@ namespace MochiHockey.Core
     /// 試合のルール（REQ-001〜005）。スコア・残り時間・フェーズを持ち、Tick で時間を進める。
     /// - StartKickoff でスコアと時間を戻し、KickoffCountdown の後に Playing になる（カウントダウン中は試合時間は進まない）
     /// - ゴールの得点は、守る側の相手チームに、餅のレベルに応じて入る（オウンゴールも同じ）
-    /// - 時間切れで点差があれば Finished、同点なら SuddenDeath
+    /// - ゴール後は MochiRespawning になり、MochiRespawnDelay 後に MochiRespawnRequested を出して Playing に戻る。
+    ///   待っている間も試合時間は進み、次のゴールは受け付けない
+    /// - 時間切れで点差があれば Finished、同点なら SuddenDeath（時間制限なし）。サドンデスでは次のゴールで Finished
+    /// - 同点で時間切れになったのが再出現待ちの間なら、待ち時間が終わったところで餅の再出現を求める
     /// </summary>
     public sealed class MatchRules
     {
@@ -19,6 +22,8 @@ namespace MochiHockey.Core
 
         private bool _started;
         private float _kickoffRemaining;
+        private bool _respawnPending;
+        private float _respawnRemaining;
 
         public MatchRules(MatchSettings settings, MochiGrowth growth)
         {
@@ -40,9 +45,12 @@ namespace MochiHockey.Core
         /// <summary>得点が入った（得点したチーム、加算した点）。</summary>
         public event Action<Team, int> Scored;
 
+        /// <summary>ゴール後、中央に Lv.1 の餅を出し直すとき（プレイヤーの位置は戻さない、REQ-004）。</summary>
+        public event Action MochiRespawnRequested;
+
         public int GetScore(Team team) => _scores[(int)team];
 
-        /// <summary>キックオフから始める。スコア・残り時間・勝者を最初に戻す。</summary>
+        /// <summary>キックオフから始める。スコア・残り時間・勝者・再出現待ちを最初に戻す。</summary>
         public void StartKickoff()
         {
             _started = true;
@@ -51,14 +59,19 @@ namespace MochiHockey.Core
             Winner = null;
             RemainingTime = _settings.MatchDuration;
             _kickoffRemaining = _settings.KickoffCountdown;
+            _respawnPending = false;
+            _respawnRemaining = 0f;
             ChangePhase(MatchPhase.Kickoff);
         }
 
-        /// <summary>ゴールに入った。得点は守る側の相手に入る（REQ-003）。試合中でなければ何もしない。</summary>
+        /// <summary>
+        /// ゴールに入った。得点は守る側の相手に入る（REQ-003）。
+        /// Playing・SuddenDeath 以外のとき、餅の再出現を待っているときは何もしない。
+        /// </summary>
         /// <param name="defendingTeam">ゴールを守っているチーム。</param>
         public void RegisterGoal(Team defendingTeam, MochiLevel level)
         {
-            if (Phase != MatchPhase.Playing)
+            if (_respawnPending || (Phase != MatchPhase.Playing && Phase != MatchPhase.SuddenDeath))
             {
                 return;
             }
@@ -67,6 +80,17 @@ namespace MochiHockey.Core
             var points = _growth.GetPoints(level);
             _scores[(int)scoringTeam] += points;
             Scored?.Invoke(scoringTeam, points);
+
+            if (Phase == MatchPhase.SuddenDeath)
+            {
+                Winner = scoringTeam;
+                ChangePhase(MatchPhase.Finished);
+                return;
+            }
+
+            _respawnPending = true;
+            _respawnRemaining = _settings.MochiRespawnDelay;
+            ChangePhase(MatchPhase.MochiRespawning);
         }
 
         public void Tick(float deltaTime)
@@ -82,7 +106,7 @@ namespace MochiHockey.Core
             }
 
             var remaining = deltaTime;
-            while (remaining > 0f)
+            while (true)
             {
                 switch (Phase)
                 {
@@ -93,7 +117,7 @@ namespace MochiHockey.Core
                             return;
                         }
 
-                        remaining -= _kickoffRemaining;
+                        remaining = MathF.Max(0f, remaining - _kickoffRemaining);
                         _kickoffRemaining = 0f;
                         ChangePhase(MatchPhase.Playing);
                         break;
@@ -105,9 +129,51 @@ namespace MochiHockey.Core
                             return;
                         }
 
-                        remaining -= RemainingTime;
+                        remaining = MathF.Max(0f, remaining - RemainingTime);
                         RemainingTime = 0f;
                         OnTimeUp();
+                        break;
+
+                    case MatchPhase.MochiRespawning:
+                        var step = MathF.Min(_respawnRemaining, RemainingTime);
+                        if (remaining < step - TimeTolerance)
+                        {
+                            RemainingTime -= remaining;
+                            _respawnRemaining -= remaining;
+                            return;
+                        }
+
+                        remaining = MathF.Max(0f, remaining - step);
+                        RemainingTime = MathF.Max(0f, RemainingTime - step);
+                        _respawnRemaining = MathF.Max(0f, _respawnRemaining - step);
+
+                        // 同時なら先に餅を出し直してから時間切れにする
+                        if (_respawnRemaining <= TimeTolerance)
+                        {
+                            Respawn();
+                            ChangePhase(MatchPhase.Playing);
+                        }
+                        else
+                        {
+                            RemainingTime = 0f;
+                            OnTimeUp();
+                        }
+
+                        break;
+
+                    case MatchPhase.SuddenDeath:
+                        if (!_respawnPending || remaining < _respawnRemaining - TimeTolerance)
+                        {
+                            if (_respawnPending)
+                            {
+                                _respawnRemaining -= remaining;
+                            }
+
+                            return;
+                        }
+
+                        remaining = MathF.Max(0f, remaining - _respawnRemaining);
+                        Respawn();
                         break;
 
                     default:
@@ -116,16 +182,25 @@ namespace MochiHockey.Core
             }
         }
 
+        private void Respawn()
+        {
+            _respawnPending = false;
+            _respawnRemaining = 0f;
+            MochiRespawnRequested?.Invoke();
+        }
+
         private void OnTimeUp()
         {
             var a = GetScore(Team.A);
             var b = GetScore(Team.B);
             if (a == b)
             {
+                // 再出現待ちの途中なら、待ちはそのまま続ける（サドンデスの餅になる）
                 ChangePhase(MatchPhase.SuddenDeath);
                 return;
             }
 
+            _respawnPending = false;
             Winner = a > b ? Team.A : Team.B;
             ChangePhase(MatchPhase.Finished);
         }
