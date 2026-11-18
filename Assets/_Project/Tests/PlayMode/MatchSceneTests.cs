@@ -30,6 +30,7 @@ namespace MochiHockey.Tests.PlayMode
         public IEnumerator MatchScene_HasTwoWorkingPlayers()
         {
             yield return SceneManager.LoadSceneAsync("Match", LoadSceneMode.Single);
+            yield return MatchSceneHelper.WaitUntilPlaying();
             yield return null;
 
             var controllers = Object.FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
@@ -44,6 +45,7 @@ namespace MochiHockey.Tests.PlayMode
         public IEnumerator MatchScene_HasWorkingMochiBallAndRiceSpawner()
         {
             yield return SceneManager.LoadSceneAsync("Match", LoadSceneMode.Single);
+            yield return MatchSceneHelper.WaitUntilPlaying();
             yield return null;
             yield return null;
 
@@ -61,6 +63,7 @@ namespace MochiHockey.Tests.PlayMode
         public IEnumerator MatchScene_PlayersHaveMalletsAndOpposingTeams()
         {
             yield return SceneManager.LoadSceneAsync("Match", LoadSceneMode.Single);
+            yield return MatchSceneHelper.WaitUntilPlaying();
 
             var player1 = GameObject.Find("Player1").GetComponent<PlayerController>();
             var player2 = GameObject.Find("Player2").GetComponent<PlayerController>();
@@ -71,9 +74,34 @@ namespace MochiHockey.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator MatchScene_HasMatchManagerAndAGoalOnEachTeamsSide()
+        {
+            yield return SceneManager.LoadSceneAsync("Match", LoadSceneMode.Single);
+            yield return MatchSceneHelper.WaitUntilPlaying();
+
+            var manager = Object.FindFirstObjectByType<MatchManager>();
+            Assert.That(manager, Is.Not.Null, "MatchManager がない");
+            Assert.That(manager.enabled, Is.True, "MatchManager の Config か Ball が入っていない");
+            Assert.That(manager.Rules.Phase, Is.EqualTo(MochiHockey.Core.MatchPhase.Playing));
+
+            var goals = Object.FindObjectsByType<GoalPost>(FindObjectsSortMode.None);
+            Assert.That(goals.Length, Is.EqualTo(2));
+            Assert.That(goals.Select(g => g.DefendingTeam).Distinct().Count(), Is.EqualTo(2), "2 つのゴールが同じチーム");
+
+            // 各チームは自分の側（キックオフの位置の側）にあるゴールを守る
+            foreach (var player in Object.FindObjectsByType<PlayerController>(FindObjectsSortMode.None))
+            {
+                var ownGoal = goals.Single(g => g.DefendingTeam == player.Team);
+                Assert.That(Mathf.Sign(ownGoal.transform.position.x), Is.EqualTo(Mathf.Sign(player.transform.position.x)),
+                    $"{player.name}（チーム {player.Team}）のゴールが反対側にある");
+            }
+        }
+
+        [UnityTest]
         public IEnumerator MatchScene_PlayerMovesWhenGivenInput()
         {
             yield return SceneManager.LoadSceneAsync("Match", LoadSceneMode.Single);
+            yield return MatchSceneHelper.WaitUntilPlaying();
             var player = GameObject.Find("Player1").GetComponent<PlayerController>();
             player.GetComponent<PlayerInputReader>().enabled = false;
             var start = player.transform.position;

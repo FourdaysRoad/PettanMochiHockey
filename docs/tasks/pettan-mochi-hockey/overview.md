@@ -129,7 +129,7 @@ TASK-0016 → TASK-0017
 
 - [x] [TASK-0018: MatchRules（スコア・ゴール・タイマー）](TASK-0018.md) - 8h (TDD) 🔵
 - [x] [TASK-0019: MatchRules（サドンデス・フェーズ遷移・再出現）](TASK-0019.md) - 8h (TDD) 🔵
-- [ ] [TASK-0020: GoalPost と MatchManager（試合進行）](TASK-0020.md) - 8h (TDD) 🔵
+- [x] [TASK-0020: GoalPost と MatchManager（試合進行）](TASK-0020.md) - 8h (TDD) 🔵
 - [ ] [TASK-0021: MatchSession と PlayerJoinManager（参加受付）](TASK-0021.md) - 8h (TDD) 🔵
 - [ ] [TASK-0022: Menu シーン UI（タイトル・対戦設定）](TASK-0022.md) - 8h (TDD) 🔵
 - [ ] [TASK-0023: Match HUD・ポーズ・リザルト画面](TASK-0023.md) - 8h (TDD) 🔵

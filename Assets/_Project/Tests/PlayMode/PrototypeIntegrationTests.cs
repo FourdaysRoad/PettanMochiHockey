@@ -31,6 +31,7 @@ namespace MochiHockey.Tests.PlayMode
         public IEnumerator GrowBall_GetHit_DropIt_BounceAndStick_ThenRecover()
         {
             yield return SceneManager.LoadSceneAsync("Match", LoadSceneMode.Single);
+            yield return MatchSceneHelper.WaitUntilPlaying();
             var p1 = Player("Player1");
             var p2 = Player("Player2");
             var ball = Object.FindFirstObjectByType<MochiBall>();
@@ -74,6 +75,7 @@ namespace MochiHockey.Tests.PlayMode
         public IEnumerator Shoot_TravelsAcrossRinkAndShooterCannotRegrabImmediately()
         {
             yield return SceneManager.LoadSceneAsync("Match", LoadSceneMode.Single);
+            yield return MatchSceneHelper.WaitUntilPlaying();
             var p1 = Player("Player1");
             var ball = Object.FindFirstObjectByType<MochiBall>();
             yield return new WaitForFixedUpdate();

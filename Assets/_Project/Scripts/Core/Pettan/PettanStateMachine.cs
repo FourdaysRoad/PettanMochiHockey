@@ -106,6 +106,22 @@ namespace MochiHockey.Core
             ChangeState(PettanState.HitStop);
         }
 
+        /// <summary>どの状態からでも、すぐに Normal に戻す（キックオフのやり直しなど）。Normal なら何もしない。</summary>
+        public void Reset()
+        {
+            if (State == PettanState.Normal)
+            {
+                return;
+            }
+
+            Elapsed = 0f;
+            Height = 0f;
+            WallNormal = Vector2.Zero;
+            _legs.Clear();
+            _willHitWall = false;
+            ChangeState(PettanState.Normal);
+        }
+
         public void Tick(float deltaTime)
         {
             if (deltaTime < 0f)

@@ -76,8 +76,14 @@ namespace MochiHockey.Runtime
 
         public PettanState PettanState => _pettan?.State ?? PettanState.Normal;
 
-        /// <summary>移動・ボタン操作を受け付けるか（被弾中と空振り硬直中は受け付けない）。</summary>
-        public bool CanControl => _pettan != null && _pettan.CanControl && _whiffRemaining <= 0f;
+        /// <summary>
+        /// MatchManager が操作を止めているか（キックオフのカウントダウン中・試合終了後）。
+        /// 止まっている間は入力を受け付けない（滑っている分は摩擦で止まる）。
+        /// </summary>
+        public bool Locked { get; set; }
+
+        /// <summary>移動・ボタン操作を受け付けるか（止められている間、被弾中、空振り硬直中は受け付けない）。</summary>
+        public bool CanControl => _pettan != null && _pettan.CanControl && _whiffRemaining <= 0f && !Locked;
 
         /// <summary>杵で叩かれるか（Normal のときだけ）。</summary>
         public bool CanBeHit => _pettan != null && _pettan.CanBeHit;
@@ -164,15 +170,43 @@ namespace MochiHockey.Runtime
         /// </summary>
         public void ReceiveHit(PlayerController attacker)
         {
+            ReceiveHit(attacker.transform.forward);
+        }
+
+        /// <summary>吹き飛ばす方向を指定して被弾させる（Lv.3 シュートの巻き込みなど）。反映は LateUpdate。</summary>
+        public void ReceiveHit(Vector3 launchDirection)
+        {
             if (!CanBeHit || _hasPendingHit)
             {
                 return;
             }
 
-            var direction = attacker.transform.forward;
-            direction.y = 0f;
-            _pendingHitDirection = direction.sqrMagnitude > 0f ? direction.normalized : -transform.forward;
+            launchDirection.y = 0f;
+            _pendingHitDirection = launchDirection.sqrMagnitude > 0f ? launchDirection.normalized : -transform.forward;
             _hasPendingHit = true;
+        }
+
+        /// <summary>
+        /// キックオフのために、被弾・スイング・チャージ・スタミナを最初の状態に戻し、指定の位置と向きに置く（REQ-005）。
+        /// 持っている餅は MatchManager が別に戻す。
+        /// </summary>
+        public void ResetForKickoff(Vector3 position, Quaternion rotation)
+        {
+            _hasPendingHit = false;
+            _pettan.Reset();
+            _motion.Stop();
+            _shotCharge.Cancel();
+            _stamina = new Stamina(_settings);
+            _swingRemaining = 0f;
+            _whiffRemaining = 0f;
+            _dashRequested = false;
+            _moveInput = System.Numerics.Vector2.Zero;
+
+            _body.isKinematic = false;
+            _body.position = position;
+            _body.rotation = rotation;
+            transform.SetPositionAndRotation(position, rotation);
+            _body.linearVelocity = Vector3.zero;
         }
 
         private void Update()
@@ -314,7 +348,12 @@ namespace MochiHockey.Runtime
                     transform.localScale = _baseScale;
                     break;
                 case PettanState.Normal:
+                    // ふつうは Invincible から戻るが、Reset でどの状態からでも来るので全部元に戻す
                     SetRenderersVisible(true);
+                    SetCollidersEnabled(true);
+                    SetCollisionWithOtherPlayers(true);
+                    _body.isKinematic = false;
+                    transform.localScale = _baseScale;
                     break;
             }
         }

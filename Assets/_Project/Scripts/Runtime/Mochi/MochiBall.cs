@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using MochiHockey.Core;
 using UnityEngine;
 
@@ -9,6 +10,8 @@ namespace MochiHockey.Runtime
     /// - 正面から触れたプレイヤーに吸着し、持たれている間は kinematic で杵の先（体の正面）に追従する
     /// - Shoot でチャージ段階とレベルに応じた速さで打ち出し、Drop で軽く跳ねて落ちる
     /// - レベルが上がると大きさ（とコライダー）が変わり、持ち手の速度倍率も変わる
+    /// - Lv.3 で打つと、PierceMinSpeed 以上で飛んでいる間は敵をすり抜けながら、触れた敵を吹き飛ばす（REQ-015）
+    /// - ゴール後は Hide で消え、ResetTo で Lv.1 として出し直される（REQ-004）
     /// </summary>
     [RequireComponent(typeof(Rigidbody))]
     public sealed class MochiBall : MonoBehaviour
@@ -18,10 +21,14 @@ namespace MochiHockey.Runtime
         private Rigidbody _body;
         private Collider _collider;
         private GameBalanceConfig.MochiBallConfig _ballConfig;
+        private MochiSettings _mochiSettings;
         private MochiGrowth _growth;
         private Mochi _mochi;
         private Vector3 _baseScale;
         private float _heldHeight;
+
+        private PlayerController _piercingShooter;
+        private readonly List<Collider> _piercedColliders = new List<Collider>();
 
         public GameBalanceConfig Config
         {
@@ -67,11 +74,13 @@ namespace MochiHockey.Runtime
             }
 
             _body.linearDamping = _ballConfig.LinearDamping;
-            _growth = new MochiGrowth(settings.Mochi);
-            _mochi = new Mochi(_growth, settings.Mochi);
-            _mochi.LevelChanged += OnLevelChanged;
-            ApplyScale();
+            _mochiSettings = settings.Mochi;
+            _growth = new MochiGrowth(_mochiSettings);
+            CreateMochi();
         }
+
+        /// <summary>Lv.3 のシュートが敵を巻き込んでいる間か。</summary>
+        public bool IsPiercing => _piercingShooter != null;
 
         private void Update()
         {
@@ -83,7 +92,18 @@ namespace MochiHockey.Runtime
             if (IsHeld)
             {
                 _body.MovePosition(DribblePosition());
+                return;
             }
+
+            if (IsPiercing)
+            {
+                UpdatePierce();
+            }
+        }
+
+        private void OnDisable()
+        {
+            EndPierce();
         }
 
         private void OnCollisionEnter(Collision collision) => TryAttachFromContact(collision);
@@ -111,6 +131,7 @@ namespace MochiHockey.Runtime
                 return false;
             }
 
+            EndPierce();
             Holder = player;
             player.HeldBall = this;
             player.SpeedMultiplier = _growth.GetSpeedMultiplier(Level);
@@ -141,6 +162,45 @@ namespace MochiHockey.Runtime
             _mochi.Release();
             _body.isKinematic = false;
             _body.linearVelocity = direction * speed;
+
+            if (Level == MochiLevel.Lv3)
+            {
+                BeginPierce(shooter);
+            }
+        }
+
+        /// <summary>ゴールに入った餅を消す。持たれていれば手放させる。</summary>
+        public void Hide()
+        {
+            if (IsHeld)
+            {
+                DetachFromHolder();
+                _mochi.Drop();
+            }
+
+            EndPierce();
+            _body.isKinematic = false;
+            _body.linearVelocity = Vector3.zero;
+            _body.angularVelocity = Vector3.zero;
+            gameObject.SetActive(false);
+        }
+
+        /// <summary>Lv.1（ご飯粒 0）の新しい餅として、指定の位置に止まった状態で出し直す（REQ-004, REQ-005）。</summary>
+        public void ResetTo(Vector3 position)
+        {
+            if (IsHeld)
+            {
+                DetachFromHolder();
+            }
+
+            EndPierce();
+            gameObject.SetActive(true);
+            CreateMochi();
+            _body.isKinematic = false;
+            _body.position = position;
+            transform.position = position;
+            _body.linearVelocity = Vector3.zero;
+            _body.angularVelocity = Vector3.zero;
         }
 
         /// <summary>被弾で落とす（REQ-032）。大きさは保ったまま軽く跳ねる。再吸着禁止は付かない。</summary>
@@ -228,6 +288,79 @@ namespace MochiHockey.Runtime
             }
 
             return sphere.radius * Mathf.Abs(transform.lossyScale.x);
+        }
+
+        private void CreateMochi()
+        {
+            if (_mochi != null)
+            {
+                _mochi.LevelChanged -= OnLevelChanged;
+            }
+
+            _mochi = new Mochi(_growth, _mochiSettings);
+            _mochi.LevelChanged += OnLevelChanged;
+            ApplyScale();
+        }
+
+        /// <summary>打った人の敵とは衝突しないようにして、触れた敵を吹き飛ばしながら進む。</summary>
+        private void BeginPierce(PlayerController shooter)
+        {
+            _piercingShooter = shooter;
+            _piercedColliders.Clear();
+            foreach (var player in FindObjectsByType<PlayerController>(FindObjectsSortMode.None))
+            {
+                if (player.Team == shooter.Team)
+                {
+                    continue;
+                }
+
+                foreach (var playerCollider in player.GetComponentsInChildren<Collider>())
+                {
+                    Physics.IgnoreCollision(_collider, playerCollider, true);
+                    _piercedColliders.Add(playerCollider);
+                }
+            }
+        }
+
+        private void UpdatePierce()
+        {
+            var velocity = _body.linearVelocity;
+            velocity.y = 0f;
+            if (velocity.magnitude < _ballConfig.PierceMinSpeed)
+            {
+                EndPierce();
+                return;
+            }
+
+            var shooter = _piercingShooter;
+            foreach (var hit in Physics.OverlapSphere(_body.position, BallRadius(), ~0, QueryTriggerInteraction.Ignore))
+            {
+                var target = hit.GetComponentInParent<PlayerController>();
+                if (target != null && target != shooter
+                    && HitRules.CanHit(shooter.Id, shooter.Team, target.Id, target.Team, target.CanBeHit))
+                {
+                    target.ReceiveHit(velocity);
+                }
+            }
+        }
+
+        private void EndPierce()
+        {
+            if (_piercingShooter == null)
+            {
+                return;
+            }
+
+            foreach (var playerCollider in _piercedColliders)
+            {
+                if (playerCollider != null)
+                {
+                    Physics.IgnoreCollision(_collider, playerCollider, false);
+                }
+            }
+
+            _piercedColliders.Clear();
+            _piercingShooter = null;
         }
 
         private void OnLevelChanged(MochiLevel level)

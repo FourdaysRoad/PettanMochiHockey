@@ -72,6 +72,7 @@ MonoBehaviour:
     DribbleGap: 0.1
     DropPopSpeed: 3
     LinearDamping: 0.5
+    PierceMinSpeed: 5
   Mallet:
     Reach: 1.2
     Radius: 0.8

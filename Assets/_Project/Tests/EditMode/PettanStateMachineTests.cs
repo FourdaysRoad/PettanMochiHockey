@@ -277,6 +277,32 @@ namespace MochiHockey.Tests.EditMode
             Assert.Throws<ArgumentException>(() => _machine.Begin(HitPosition, Vector2.Zero));
         }
 
+        [TestCase(0.05f)]
+        [TestCase(0.3f)]
+        [TestCase(1.0f)]
+        [TestCase(3.0f)]
+        public void Reset_ReturnsToNormalFromAnyState(float seconds)
+        {
+            _machine.Begin(HitPosition, Right);
+            Run(seconds);
+
+            _machine.Reset();
+
+            Assert.That(_machine.State, Is.EqualTo(PettanState.Normal));
+            Assert.That(_machine.Elapsed, Is.EqualTo(0f));
+            Assert.That(_machine.Height, Is.EqualTo(0f));
+            Assert.That(_machine.Scale, Is.EqualTo(Vector3.One));
+            Assert.That(_stateChanges[_stateChanges.Count - 1], Is.EqualTo(PettanState.Normal));
+        }
+
+        [Test]
+        public void Reset_InNormal_DoesNothing()
+        {
+            _machine.Reset();
+
+            Assert.That(_stateChanges, Is.Empty);
+        }
+
         [Test]
         public void Tick_InNormal_DoesNothing()
         {

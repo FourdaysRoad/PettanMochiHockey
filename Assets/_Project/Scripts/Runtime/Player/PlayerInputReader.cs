@@ -28,10 +28,18 @@ namespace MochiHockey.Runtime
         private InputAction _dash;
         private InputAction _shoot;
         private InputAction _swing;
+        private InputAction _pause;
+        private MatchManager _match;
 
         private void Awake()
         {
             _controller = GetComponent<PlayerController>();
+        }
+
+        private void Start()
+        {
+            // Match シーンでなければ（テストの組み立てなど）ないこともある
+            _match = FindFirstObjectByType<MatchManager>();
         }
 
         private void OnEnable()
@@ -55,6 +63,7 @@ namespace MochiHockey.Runtime
             _dash = map.FindAction("Dash", throwIfNotFound: true);
             _shoot = map.FindAction("Shoot", throwIfNotFound: true);
             _swing = map.FindAction("Swing", throwIfNotFound: true);
+            _pause = map.FindAction("Pause", throwIfNotFound: true);
             _instance.Enable();
         }
 
@@ -73,6 +82,18 @@ namespace MochiHockey.Runtime
 
         private void Update()
         {
+            if (_pause.WasPressedThisFrame() && _match != null)
+            {
+                _match.TogglePause();
+            }
+
+            if (_match != null && _match.IsPaused)
+            {
+                // ポーズ中はほかの操作を受け付けない（ポーズ前に押していた移動も止める）
+                _controller.SetMoveInput(Vector2.zero);
+                return;
+            }
+
             _controller.SetMoveInput(Vector2.ClampMagnitude(_move.ReadValue<Vector2>(), 1f));
             if (_dash.WasPressedThisFrame())
             {

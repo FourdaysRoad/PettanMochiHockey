@@ -69,6 +69,25 @@ namespace MochiHockey.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator SpawnedRice_IsNeverInsideGoal()
+        {
+            // 右半分を覆う大きなゴール
+            var goal = TestWorld.CreateGoal(new Vector3(6f, 0.5f, 0f), MochiHockey.Core.Team.B);
+            goal.transform.localScale = new Vector3(12f, 2f, 20f);
+            Physics.SyncTransforms(); // 大きさの変更をコライダーの範囲にすぐ反映する
+            _config.Rice.RefillInterval = 0.05f;
+            CreateSpawner();
+            yield return new WaitForSeconds(1f);
+
+            foreach (var rice in ActiveRice())
+            {
+                Assert.That(goal.ContainsOnFloor(rice.transform.position), Is.False);
+            }
+
+            Object.Destroy(goal.gameObject);
+        }
+
+        [UnityTest]
         public IEnumerator AbsorbedRice_ReturnsToPoolAndIsReused()
         {
             CreateSpawner();

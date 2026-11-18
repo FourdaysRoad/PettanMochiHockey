@@ -38,6 +38,33 @@ namespace MochiHockey.Tests.PlayMode
             return mochiBall;
         }
 
+        /// <summary>臼型ゴールの代わりの箱（トリガー）。defendingTeam のゴール。</summary>
+        public static GoalPost CreateGoal(Vector3 position, Team defendingTeam)
+        {
+            var goal = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            goal.name = "Goal";
+            goal.SetActive(false);
+            goal.transform.position = position;
+            goal.transform.localScale = new Vector3(1.5f, 2f, 3f);
+            goal.GetComponent<Collider>().isTrigger = true;
+            var post = goal.AddComponent<GoalPost>();
+            post.DefendingTeam = defendingTeam;
+            goal.SetActive(true);
+            return post;
+        }
+
+        /// <summary>シーンにあるプレイヤー・餅・ゴールをまとめる MatchManager。</summary>
+        public static MatchManager CreateMatchManager(GameBalanceConfig config, MochiBall ball)
+        {
+            var go = new GameObject("MatchManager");
+            go.SetActive(false);
+            var manager = go.AddComponent<MatchManager>();
+            manager.Config = config;
+            manager.Ball = ball;
+            go.SetActive(true);
+            return manager;
+        }
+
         /// <summary>スポナーが複製するご飯粒の元（非アクティブ）。</summary>
         public static MochiRice CreateRiceTemplate()
         {

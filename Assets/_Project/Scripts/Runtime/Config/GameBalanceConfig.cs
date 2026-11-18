@@ -250,6 +250,9 @@ namespace MochiHockey.Runtime
 
             [Tooltip("仮：誰も持っていない餅の減速の強さ（Rigidbody の Linear Damping）。氷の上でも少しずつ止まる")]
             [Min(0f)] public float LinearDamping = 0.5f;
+
+            [Tooltip("仮：Lv.3 で打った餅が敵を巻き込んで吹き飛ばす（貫通する）間の最低速度（m/s）。これより遅くなったら普通の餅に戻る")]
+            [Min(0f)] public float PierceMinSpeed = 5f;
         }
 
         [Serializable]

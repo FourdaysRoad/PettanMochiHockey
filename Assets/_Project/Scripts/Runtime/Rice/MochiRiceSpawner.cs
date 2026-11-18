@@ -6,7 +6,7 @@ namespace MochiHockey.Runtime
 {
     /// <summary>
     /// RiceSpawnSchedule に従ってご飯粒を出す（REQ-011）。吸収されたご飯粒はプールに戻して使い回す。
-    /// 出現範囲はリンクから SpawnMargin だけ内側、高さはこのオブジェクトの Y。
+    /// 出現範囲はリンクから SpawnMargin だけ内側（ゴールの中は除く）、高さはこのオブジェクトの Y。
     /// </summary>
     public sealed class MochiRiceSpawner : MonoBehaviour
     {
@@ -15,6 +15,7 @@ namespace MochiHockey.Runtime
 
         private readonly List<MochiRice> _pool = new List<MochiRice>();
         private RiceSpawnSchedule _schedule;
+        private GoalPost[] _goals = System.Array.Empty<GoalPost>();
 
         public GameBalanceConfig Config
         {
@@ -57,6 +58,11 @@ namespace MochiHockey.Runtime
             _schedule = new RiceSpawnSchedule(settings.Rice, new RinkBounds(min, max), new SystemRandom());
         }
 
+        private void Start()
+        {
+            _goals = FindObjectsByType<GoalPost>(FindObjectsSortMode.None);
+        }
+
         private void Update()
         {
             var count = _schedule.Tick(Time.deltaTime, ActiveCount);
@@ -81,10 +87,24 @@ namespace MochiHockey.Runtime
         private void Spawn()
         {
             var rice = TakeFromPool();
-            var point = _schedule.PickPosition(null);
+            var point = _schedule.PickPosition(IsInsideGoal);
             rice.transform.position = new Vector3(point.X, transform.position.y, point.Y);
             rice.gameObject.SetActive(true);
             ActiveCount++;
+        }
+
+        private bool IsInsideGoal(System.Numerics.Vector2 point)
+        {
+            var world = new Vector3(point.X, transform.position.y, point.Y);
+            foreach (var goal in _goals)
+            {
+                if (goal != null && goal.ContainsOnFloor(world))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private MochiRice TakeFromPool()
