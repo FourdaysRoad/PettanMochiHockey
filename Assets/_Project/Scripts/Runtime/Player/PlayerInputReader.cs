@@ -17,11 +17,15 @@ namespace MochiHockey.Runtime
         public const string KeyboardP2Scheme = "KeyboardP2";
         public const string GamepadScheme = "Gamepad";
 
+        /// <summary>デバイスを決めない（キーボードの割り当てなら今のキーボード、ゲームパッドならどれでも）。</summary>
+        public const int AnyDevice = -1;
+
         [SerializeField] private InputActionAsset actions;
 
         [Tooltip("KeyboardP1 / KeyboardP2 / Gamepad")]
         [SerializeField] private string controlScheme = KeyboardP1Scheme;
 
+        private int _deviceId = AnyDevice;
         private PlayerController _controller;
         private InputActionAsset _instance;
         private InputAction _move;
@@ -51,11 +55,19 @@ namespace MochiHockey.Runtime
                 return;
             }
 
+            var device = ResolveDevice();
+            if (_deviceId != AnyDevice && device == null)
+            {
+                // 対戦設定のあとでゲームパッドが抜かれたなど。このプレイヤーは入力なしで残す
+                Debug.LogWarning($"[MochiHockey] {name}: input device {_deviceId} is not connected.", this);
+                return;
+            }
+
             _instance = Instantiate(actions);
             _instance.bindingMask = InputBinding.MaskByGroup(controlScheme);
-            if (controlScheme != GamepadScheme && Keyboard.current != null)
+            if (device != null)
             {
-                _instance.devices = new InputDevice[] { Keyboard.current };
+                _instance.devices = new[] { device };
             }
 
             var map = _instance.FindActionMap("Player", throwIfNotFound: true);
@@ -80,8 +92,44 @@ namespace MochiHockey.Runtime
             _controller.SetMoveInput(Vector2.zero);
         }
 
+        /// <summary>
+        /// 操作の割り当て（KeyboardP1 / KeyboardP2 / Gamepad）と、読むデバイスを決める。
+        /// 有効なときに呼ばれたら、すぐに入れ替える。
+        /// </summary>
+        public void Configure(string scheme, int deviceId)
+        {
+            var wasActive = isActiveAndEnabled;
+            if (wasActive)
+            {
+                OnDisable();
+            }
+
+            controlScheme = scheme;
+            _deviceId = deviceId;
+
+            if (wasActive)
+            {
+                OnEnable();
+            }
+        }
+
+        private InputDevice ResolveDevice()
+        {
+            if (_deviceId != AnyDevice)
+            {
+                return InputSystem.GetDeviceById(_deviceId);
+            }
+
+            return controlScheme != GamepadScheme ? Keyboard.current : null;
+        }
+
         private void Update()
         {
+            if (_instance == null)
+            {
+                return;
+            }
+
             if (_pause.WasPressedThisFrame() && _match != null)
             {
                 _match.TogglePause();
