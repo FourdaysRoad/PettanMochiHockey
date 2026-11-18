@@ -81,6 +81,7 @@ namespace MochiHockey.Runtime
             var player = Instantiate(playerPrefab, position, rotation);
             player.name = $"Player{participant.Slot + 1}";
             player.Team = participant.Team;
+            player.Number = participant.Slot + 1;
             player.gameObject.SetActive(true);
 
             var reader = player.GetComponent<PlayerInputReader>();

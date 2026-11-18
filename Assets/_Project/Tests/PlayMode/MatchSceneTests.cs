@@ -114,6 +114,27 @@ namespace MochiHockey.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator MatchScene_HasGaugesForBallAndEveryNumberedPlayer()
+        {
+            yield return SceneManager.LoadSceneAsync("Match", LoadSceneMode.Single);
+            yield return MatchSceneHelper.WaitUntilPlaying();
+            yield return null;
+
+            var gauges = Object.FindFirstObjectByType<WorldGaugePresenter>();
+            Assert.That(gauges, Is.Not.Null, "Match シーンに WorldGaugePresenter がない");
+            Assert.That(gauges.BallGauge, Is.Not.Null, "餅の頭上のゲージがない");
+            Assert.That(gauges.BallGauge.LevelText.text, Is.EqualTo("Lv.1"));
+
+            foreach (var player in Object.FindObjectsByType<PlayerController>(FindObjectsSortMode.None))
+            {
+                var gauge = gauges.GaugeOf(player);
+                Assert.That(gauge, Is.Not.Null, $"{player.name} の足元のゲージがない");
+                Assert.That(gauge.NumberText.text, Is.EqualTo(UiText.PlayerLabel(player.Number)));
+                Assert.That(player.Number, Is.InRange(1, 4), $"{player.name} の番号が決まっていない");
+            }
+        }
+
+        [UnityTest]
         public IEnumerator MatchScene_PlayAgainReloadsMatch()
         {
             yield return SceneManager.LoadSceneAsync("Match", LoadSceneMode.Single);

@@ -45,6 +45,12 @@ namespace MochiHockey.Runtime
 
         public int RiceCount => _mochi?.RiceCount ?? 0;
 
+        /// <summary>次のレベルまでの成長ゲージ（0〜1、Lv.3 は 1）。</summary>
+        public float GrowthProgress => _growth == null ? 0f : _growth.GetGrowthProgress(RiceCount);
+
+        /// <summary>今のレベルでゴールしたときの得点（頭上の ×倍率）。</summary>
+        public int Points => _growth == null ? 1 : _growth.GetPoints(Level);
+
         private void Awake()
         {
             _body = GetComponent<Rigidbody>();

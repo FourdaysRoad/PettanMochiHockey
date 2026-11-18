@@ -59,6 +59,9 @@ namespace MochiHockey.Runtime
         /// <summary>Core に渡すプレイヤーの識別番号（このプレイ中に作られた順の通し番号）。</summary>
         public int Id { get; private set; }
 
+        /// <summary>画面に出すプレイヤー番号（1P〜4P の 1〜4）。決まっていなければ 0。MatchPlayerSpawner が設定する。</summary>
+        public int Number { get; set; }
+
         /// <summary>床面の速度（x = ワールド x、y = ワールド z）。</summary>
         public Vector2 PlanarVelocity => _motion == null ? Vector2.zero : ToUnity(_motion.Velocity);
 

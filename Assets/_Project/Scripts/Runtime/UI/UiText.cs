@@ -1,3 +1,5 @@
+using MochiHockey.Core;
+
 namespace MochiHockey.Runtime
 {
     /// <summary>
@@ -44,5 +46,14 @@ namespace MochiHockey.Runtime
 
         public const string PlayAgain = "Play again";
         public const string ResultHelp = "Play again: Enter / A      Title: Esc / B";
+
+        // ---- ワールド空間のゲージ ----
+
+        public static string LevelLabel(MochiLevel level) => $"Lv.{(int)level}";
+
+        public static string MultiplierLabel(int points) => $"x{points}";
+
+        /// <summary>プレイヤー番号（1〜4）の表示。番号が決まっていなければ "?"。</summary>
+        public static string PlayerLabel(int number) => number >= 1 ? $"{number}P" : "?";
     }
 }
