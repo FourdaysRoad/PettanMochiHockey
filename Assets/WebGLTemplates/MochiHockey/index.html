@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en-us">
+<html lang="ja">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>{{{ PRODUCT_NAME }}}</title>
+    <title>Pettan! MOCHI HOCKEY</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
 #if SHOW_DIAGNOSTICS
@@ -18,23 +18,31 @@
     <div id="unity-container" class="unity-desktop">
       <div id="unity-fullscreen-container">
         <canvas id="unity-canvas" width="{{{ WIDTH }}}" height="{{{ HEIGHT }}}" tabindex="-1"></canvas>
+        <!-- Pettan! MOCHI HOCKEY：ロード中の画面（タイトルロゴと進捗バー）。画像を使わず HTML と CSS だけで描く -->
         <div id="unity-loading-container">
-          <div id="unity-loading-bar">
-            <div id="unity-logo"></div>
+          <div id="mochi-loading">
+            <div id="mochi-logo">
+              <div id="mochi-logo-pettan">Pettan!</div>
+              <div id="mochi-logo-title">MOCHI HOCKEY</div>
+            </div>
+            <div id="mochi-blob-stage">
+              <div id="mochi-blob"><div class="mochi-eye left"></div><div class="mochi-eye right"></div></div>
+              <div id="mochi-blob-shadow"></div>
+            </div>
             <div id="unity-progress-bar-empty">
               <div id="unity-progress-bar-full"></div>
             </div>
+            <div id="mochi-progress-text">Loading... 0%</div>
           </div>
         </div>
       </div>
       <div id="unity-warning"> </div>
       <div id="unity-footer">
-        <div id="unity-logo-title-footer"></div>
-        <div id="unity-fullscreen-button"></div>
+        <div id="unity-fullscreen-button" title="Fullscreen (F)"></div>
 #if SHOW_DIAGNOSTICS
         <img id="diagnostics-icon" src="TemplateData/webmemd-icon.png">
 #endif
-        <div id="unity-build-title">{{{ PRODUCT_NAME }}}</div>
+        <div id="unity-build-title">Pettan! MOCHI HOCKEY</div>
       </div>
     </div>
     <script>
@@ -165,15 +173,16 @@
       script.onload = () => {
         const loadingContainer = document.querySelector("#unity-loading-container");
         const progressBarFull = document.querySelector("#unity-progress-bar-full");
+        const progressText = document.querySelector("#mochi-progress-text");
 
+        // 進捗は 0〜1。読み込みが終わったあと（1）も、ゲームが起動するまでは画面を残しておく
         createUnityInstance(canvas, config, (progress) => {
-          if (progress < 1) {
-            loadingContainer.style.display = "block";
-            progressBarFull.style.width = 100 * progress + "%";
-          } else {
-            loadingContainer.style.display = "none";
-          }
+          var percent = Math.min(100, Math.round(100 * progress));
+          progressBarFull.style.width = percent + "%";
+          progressText.textContent = progress < 1 ? "Loading... " + percent + "%" : "Starting...";
         }).then((unityInstance) => {
+                loadingContainer.classList.add("mochi-loaded");
+                setTimeout(() => { loadingContainer.style.display = "none"; }, 400);
 #if SHOW_DIAGNOSTICS
                 document.getElementById("diagnostics-icon").onclick = () => {
                   unityDiagnostics.openDiagnosticsDiv(unityInstance.GetMetricsInfo);
@@ -221,7 +230,8 @@
                 };
 #endif
               }).catch((message) => {
-                alert(message);
+                progressText.textContent = "Failed to start: " + message;
+                progressText.classList.add("mochi-error");
               });
             };
 
