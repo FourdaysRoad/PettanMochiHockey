@@ -178,6 +178,9 @@ namespace MochiHockey.Runtime
             [Tooltip("仮：キックオフ前のカウントダウン（秒）")]
             [Min(0f)] public float KickoffCountdown = 3f;
 
+            [Tooltip("仮：キックオフのカウントダウンのあと「GO!」を出しておく秒数。Runtime だけが使う")]
+            [Min(0f)] public float GoDisplayTime = 0.8f;
+
             [Tooltip("ゴール後に餅が中央に戻るまでの秒数")]
             [Min(0f)] public float MochiRespawnDelay = 1f;
 

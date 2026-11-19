@@ -56,7 +56,6 @@ namespace MochiHockey.Runtime
 
             root.Q<Label>("team-a-name").text = UiText.TeamNameA;
             root.Q<Label>("team-b-name").text = UiText.TeamNameB;
-            _kickoff.text = UiText.Ready;
             root.Q<Label>("goal-text").text = UiText.Goal;
             _pauseTitle = root.Q<Label>("pause-title");
             _pauseHelp = root.Q<Label>("pause-help");
@@ -96,7 +95,7 @@ namespace MochiHockey.Runtime
                 return;
             }
 
-            _viewModel = new HudViewModel(match.Rules);
+            _viewModel = new HudViewModel(match.Rules, match.Config.Match.GoDisplayTime);
             Refresh();
         }
 
@@ -117,12 +116,29 @@ namespace MochiHockey.Runtime
 
         public void PlayAgain() => match.PlayAgain();
 
+        /// <summary>数字が変わったら、大きく出して元の大きさに縮める（3・2・1・GO!）。</summary>
+        private void SetKickoffText(string text)
+        {
+            if (_kickoff.text == text)
+            {
+                return;
+            }
+
+            _kickoff.text = text;
+            _kickoff.AddToClassList("kickoff--pop");
+            _kickoff.schedule.Execute(() => _kickoff.RemoveFromClassList("kickoff--pop")).StartingIn(30);
+        }
+
         private void Refresh()
         {
             _scoreA.text = _viewModel.ScoreAText;
             _scoreB.text = _viewModel.ScoreBText;
             _timer.text = _viewModel.TimerText;
             Show(_kickoff, _viewModel.ShowKickoff);
+            if (_viewModel.ShowKickoff)
+            {
+                SetKickoffText(_viewModel.KickoffText);
+            }
 
             Show(_goalPanel, _viewModel.ShowGoal);
             if (_viewModel.ShowGoal)

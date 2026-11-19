@@ -37,6 +37,12 @@ namespace MochiHockey.Core
         /// <summary>試合の残り時間（秒）。0 以上。サドンデス中は 0。</summary>
         public float RemainingTime { get; private set; }
 
+        /// <summary>キックオフのカウントダウンの残り（秒）。Kickoff 以外では 0（3・2・1 の表示用、REQ-056）。</summary>
+        public float KickoffRemaining => Phase == MatchPhase.Kickoff ? _kickoffRemaining : 0f;
+
+        /// <summary>試合時間（秒）。</summary>
+        public float MatchDuration => _settings.MatchDuration;
+
         /// <summary>勝ったチーム。Finished のときだけ値がある。</summary>
         public Team? Winner { get; private set; }
 

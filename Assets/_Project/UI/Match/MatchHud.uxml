@@ -16,7 +16,7 @@
         </ui:VisualElement>
 
         <!-- 中央：キックオフ・GOAL! -->
-        <ui:Label name="kickoff" class="center-text kickoff" text="READY..." picking-mode="Ignore" />
+        <ui:Label name="kickoff" class="center-text kickoff" text="3" picking-mode="Ignore" />
         <ui:VisualElement name="goal-panel" class="goal-panel" picking-mode="Ignore">
             <ui:Label name="goal-text" class="goal-text" text="GOAL!" />
             <ui:Label name="goal-detail" class="goal-detail" />

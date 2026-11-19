@@ -57,6 +57,22 @@
     -unity-text-outline-color: rgb(16, 22, 34);
 }
 
+/* キックオフの 3・2・1・GO!（REQ-056）。数字が変わるたびに大きく出て、元の大きさに縮む */
+.kickoff {
+    font-size: 150px;
+    color: rgb(255, 214, 102);
+    -unity-text-outline-width: 4px;
+    scale: 1 1;
+    transition-property: scale;
+    transition-duration: 0.25s;
+    transition-timing-function: ease-out-back;
+}
+
+.kickoff--pop {
+    scale: 1.6 1.6;
+    transition-duration: 0s;
+}
+
 .goal-panel {
     position: absolute;
     top: 34%;

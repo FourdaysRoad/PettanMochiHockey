@@ -72,6 +72,26 @@ namespace MochiHockey.Tests.EditMode
         }
 
         [Test]
+        public void KickoffRemaining_CountsDownThenStaysZero()
+        {
+            _rules.StartKickoff();
+            Assert.That(_rules.KickoffRemaining, Is.EqualTo(3f));
+
+            _rules.Tick(1.25f);
+            Assert.That(_rules.KickoffRemaining, Is.EqualTo(1.75f).Within(1e-4f));
+
+            _rules.Tick(2f);
+            Assert.That(_rules.Phase, Is.EqualTo(MatchPhase.Playing));
+            Assert.That(_rules.KickoffRemaining, Is.EqualTo(0f));
+        }
+
+        [Test]
+        public void MatchDuration_IsTheConfiguredLength()
+        {
+            Assert.That(_rules.MatchDuration, Is.EqualTo(180f));
+        }
+
+        [Test]
         public void Kickoff_DoesNotUseMatchTime()
         {
             _rules.StartKickoff();

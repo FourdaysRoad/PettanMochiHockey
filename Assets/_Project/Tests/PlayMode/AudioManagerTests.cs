@@ -235,6 +235,27 @@ namespace MochiHockey.Tests.PlayMode
         }
 
         [Test]
+        public void Kickoff_BeepsThreeTimesThenWhistles()
+        {
+            AudioUnlocker.Unlock();
+            CreateAudio();
+            var settings = _config.ToSettings();
+            var rules = new MatchRules(settings.Match, new MochiGrowth(settings.Mochi));
+            _audio.BindRules(rules);
+            rules.StartKickoff();
+
+            for (var t = 0f; t < _config.Match.KickoffCountdown + 0.05f; t += 0.1f)
+            {
+                _audio.UpdateCountdown();
+                rules.Tick(0.1f);
+            }
+
+            _audio.UpdateCountdown();
+            Assert.That(_played.FindAll(s => s == SoundId.Count).Count, Is.EqualTo(3), "3・2・1");
+            Assert.That(_audio.LastSound, Is.EqualTo(SoundId.Whistle), "GO! で笛");
+        }
+
+        [Test]
         public void Play_UsesEveryVoiceInTurn()
         {
             AudioUnlocker.Unlock();

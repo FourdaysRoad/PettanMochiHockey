@@ -36,6 +36,9 @@ namespace MochiHockey.Core
         /// <summary>ゴール。</summary>
         Goal,
 
+        /// <summary>キックオフのカウントダウン（3・2・1 の「ピッ」）。</summary>
+        Count,
+
         /// <summary>キックオフの笛（短い）。</summary>
         Whistle,
 

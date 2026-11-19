@@ -82,6 +82,11 @@ namespace MochiHockey.Core
                     }
 
                     break;
+                case SoundId.Count:
+                    // ピッ：高めの短い音
+                    b.Sweep(0f, 0.12f, 880f, 880f, 1f, Env.Pluck);
+                    b.Sweep(0f, 0.12f, 1760f, 1760f, 0.3f, Env.Pluck);
+                    break;
                 case SoundId.Whistle:
                     b.Whistle(0f, 0.35f, 2300f);
                     break;
@@ -111,6 +116,7 @@ namespace MochiHockey.Core
                 case SoundId.LevelUp: return 0.5f;
                 case SoundId.BallBounce: return 0.12f;
                 case SoundId.Goal: return 1f;
+                case SoundId.Count: return 0.14f;
                 case SoundId.Whistle: return 0.38f;
                 case SoundId.FinalWhistle: return 1.12f;
                 default: return 0.2f;

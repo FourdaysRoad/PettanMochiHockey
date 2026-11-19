@@ -15,12 +15,15 @@ namespace MochiHockey.Runtime
         private readonly MatchRules _rules;
         private Team _lastScoringTeam;
         private int _lastPoints;
+        private readonly float _goDisplayTime;
         private int _timerSeconds = -1;
         private string _timerText;
 
-        public HudViewModel(MatchRules rules)
+        /// <param name="goDisplayTime">キックオフのあと「GO!」を出しておく秒数（0 なら出さない）。</param>
+        public HudViewModel(MatchRules rules, float goDisplayTime = 0f)
         {
             _rules = rules ?? throw new ArgumentNullException(nameof(rules));
+            _goDisplayTime = Math.Max(0f, goDisplayTime);
             _rules.Scored += OnScored;
             _rules.PhaseChanged += OnPhaseChanged;
         }
@@ -51,7 +54,18 @@ namespace MochiHockey.Runtime
             }
         }
 
-        public bool ShowKickoff => _rules.Phase == MatchPhase.Kickoff;
+        /// <summary>カウントダウン（3・2・1）か、始まった直後の GO! を出すか（REQ-056）。</summary>
+        public bool ShowKickoff => _rules.Phase == MatchPhase.Kickoff || ShowGo;
+
+        /// <summary>カウントダウンの数字（残りの秒を切り上げ、"3" → "2" → "1"）か "GO!"。</summary>
+        public string KickoffText => ShowGo
+            ? UiText.Go
+            : UiText.Number(Math.Max(1, (int)MathF.Ceiling(_rules.KickoffRemaining - 1e-4f)));
+
+        /// <summary>キックオフが終わって、試合が始まった直後か。</summary>
+        private bool ShowGo => _goDisplayTime > 0f
+                               && _rules.Phase == MatchPhase.Playing
+                               && _rules.MatchDuration - _rules.RemainingTime < _goDisplayTime;
 
         public bool ShowGoal => _rules.Phase == MatchPhase.MochiRespawning && _lastPoints > 0;
 

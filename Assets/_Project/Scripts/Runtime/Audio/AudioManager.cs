@@ -24,6 +24,7 @@ namespace MochiHockey.Runtime
         private int _nextVoice;
         private MatchRules _rules;
         private MatchPhase _phase;
+        private int _countdownDigit = -1;
 
         public GameBalanceConfig Config
         {
@@ -101,11 +102,30 @@ namespace MochiHockey.Runtime
 
         private void Update()
         {
+            UpdateCountdown();
+
             if (playBgm && !BgmStarted && AudioUnlocker.Unlocked)
             {
                 _bgm.clip = SoundBank.Bgm(_audio.SampleRate, _audio.BgmTempo);
                 _bgm.Play();
                 BgmStarted = true;
+            }
+        }
+
+        /// <summary>キックオフの 3・2・1 で「ピッ」と鳴らす（GO! は笛）。</summary>
+        public void UpdateCountdown()
+        {
+            if (_rules == null || _rules.Phase != MatchPhase.Kickoff)
+            {
+                _countdownDigit = -1;
+                return;
+            }
+
+            var digit = Mathf.Max(1, Mathf.CeilToInt(_rules.KickoffRemaining - 1e-4f));
+            if (digit != _countdownDigit)
+            {
+                _countdownDigit = digit;
+                Play(SoundId.Count);
             }
         }
 

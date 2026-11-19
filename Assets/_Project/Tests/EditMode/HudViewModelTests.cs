@@ -88,6 +88,57 @@ namespace MochiHockey.Tests.EditMode
             Assert.That(_hud.TimerText, Is.EqualTo("2:58"));
         }
 
+        // ---- キックオフのカウントダウン（3・2・1・GO!）----
+
+        [TestCase(0f, "3")]
+        [TestCase(0.5f, "3")]
+        [TestCase(1.2f, "2")]
+        [TestCase(2.9f, "1")]
+        public void Kickoff_CountsDownWholeSeconds(float elapsed, string expected)
+        {
+            _rules.Tick(elapsed);
+
+            Assert.That(_hud.ShowKickoff, Is.True);
+            Assert.That(_hud.KickoffText, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void AfterKickoff_ShowsGoBriefly()
+        {
+            var hud = new HudViewModel(_rules, 0.8f);
+            _rules.Tick(3f);
+            _rules.Tick(0.3f);
+
+            Assert.That(_rules.Phase, Is.EqualTo(MatchPhase.Playing));
+            Assert.That(hud.ShowKickoff, Is.True);
+            Assert.That(hud.KickoffText, Is.EqualTo(UiText.Go));
+
+            _rules.Tick(0.6f);
+            Assert.That(hud.ShowKickoff, Is.False);
+        }
+
+        [Test]
+        public void WithoutGoTime_HidesRightAfterKickoff()
+        {
+            _rules.Tick(3f);
+            _rules.Tick(0.1f);
+
+            Assert.That(_hud.ShowKickoff, Is.False);
+        }
+
+        [Test]
+        public void KickoffText_DoesNotAllocateEveryFrame()
+        {
+            _rules.Tick(0.1f);
+            _ = _hud.KickoffText;
+
+            Assert.That(() =>
+            {
+                _rules.Tick(0.01f);
+                _ = _hud.KickoffText;
+            }, Is.Not.AllocatingGCMemory());
+        }
+
         [Test]
         public void SuddenDeath_ShowsSuddenDeathInsteadOfTime()
         {
