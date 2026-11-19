@@ -15,6 +15,8 @@ namespace MochiHockey.Runtime
         private readonly MatchRules _rules;
         private Team _lastScoringTeam;
         private int _lastPoints;
+        private int _timerSeconds = -1;
+        private string _timerText;
 
         public HudViewModel(MatchRules rules)
         {
@@ -23,13 +25,31 @@ namespace MochiHockey.Runtime
             _rules.PhaseChanged += OnPhaseChanged;
         }
 
-        public string ScoreAText => _rules.GetScore(Team.A).ToString();
+        public string ScoreAText => UiText.Number(_rules.GetScore(Team.A));
 
-        public string ScoreBText => _rules.GetScore(Team.B).ToString();
+        public string ScoreBText => UiText.Number(_rules.GetScore(Team.B));
 
-        public string TimerText => _rules.Phase == MatchPhase.SuddenDeath
-            ? UiText.SuddenDeath
-            : TimeFormat.MinutesSeconds(_rules.RemainingTime);
+        /// <summary>残り時間。HUD が毎フレーム読むので、表示する秒が変わったときだけ作り直す（TASK-0031）。</summary>
+        public string TimerText
+        {
+            get
+            {
+                if (_rules.Phase == MatchPhase.SuddenDeath)
+                {
+                    return UiText.SuddenDeath;
+                }
+
+                var remaining = _rules.RemainingTime;
+                var whole = remaining > 0f ? (int)System.MathF.Floor(remaining) : 0;
+                if (_timerText == null || whole != _timerSeconds)
+                {
+                    _timerSeconds = whole;
+                    _timerText = TimeFormat.MinutesSeconds(remaining);
+                }
+
+                return _timerText;
+            }
+        }
 
         public bool ShowKickoff => _rules.Phase == MatchPhase.Kickoff;
 

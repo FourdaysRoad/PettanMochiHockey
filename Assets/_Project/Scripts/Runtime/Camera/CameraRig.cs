@@ -17,7 +17,10 @@ namespace MochiHockey.Runtime
     {
         [SerializeField] private GameBalanceConfig config;
 
+        private static readonly System.Predicate<CinemachineTargetGroup.Target> IsGone = t => t.Object == null;
+
         private readonly HashSet<PlayerController> _players = new HashSet<PlayerController>();
+        private readonly List<PlayerController> _leaving = new List<PlayerController>();
         private MochiBall _ball;
 
         public GameBalanceConfig Config
@@ -97,24 +100,38 @@ namespace MochiHockey.Runtime
         /// <summary>映す対象を、今いるプレイヤーと（出ていれば）餅に合わせる。</summary>
         private void SyncTargets()
         {
-            foreach (var player in FindObjectsByType<PlayerController>(FindObjectsSortMode.None))
+            // 毎フレーム呼ぶので、シーンを探さずに PlayerController.Active を見る（TASK-0031）
+            var active = PlayerController.Active;
+            for (var i = 0; i < active.Count; i++)
             {
-                if (_players.Add(player))
+                if (_players.Add(active[i]))
                 {
-                    TargetGroup.AddMember(player.transform, 1f, config.Camera.PlayerRadius);
+                    TargetGroup.AddMember(active[i].transform, 1f, config.Camera.PlayerRadius);
                 }
             }
 
-            _players.RemoveWhere(player =>
+            if (_players.Count > active.Count)
             {
-                if (player != null)
+                _leaving.Clear();
+                foreach (var player in _players)
                 {
-                    return false;
+                    if (player == null || !player.isActiveAndEnabled)
+                    {
+                        _leaving.Add(player);
+                    }
                 }
 
-                TargetGroup.Targets.RemoveAll(t => t.Object == null);
-                return true;
-            });
+                foreach (var player in _leaving)
+                {
+                    _players.Remove(player);
+                    if (player != null)
+                    {
+                        TargetGroup.RemoveMember(player.transform);
+                    }
+                }
+
+                TargetGroup.Targets.RemoveAll(IsGone);
+            }
 
             if (_ball == null)
             {

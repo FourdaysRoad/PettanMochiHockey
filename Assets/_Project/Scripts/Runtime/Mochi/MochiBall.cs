@@ -30,6 +30,9 @@ namespace MochiHockey.Runtime
         private PlayerController _piercingShooter;
         private readonly List<Collider> _piercedColliders = new List<Collider>();
 
+        // 巻き込み判定で見つかったコライダーの入れ物（毎回配列を作らないように使い回す。TASK-0031）
+        private readonly Collider[] _overlaps = new Collider[32];
+
         public GameBalanceConfig Config
         {
             get => config;
@@ -381,8 +384,10 @@ namespace MochiHockey.Runtime
             }
 
             var shooter = _piercingShooter;
-            foreach (var hit in Physics.OverlapSphere(_body.position, BallRadius(), ~0, QueryTriggerInteraction.Ignore))
+            var count = Physics.OverlapSphereNonAlloc(_body.position, BallRadius(), _overlaps, ~0, QueryTriggerInteraction.Ignore);
+            for (var i = 0; i < count; i++)
             {
+                var hit = _overlaps[i];
                 var target = hit.GetComponentInParent<PlayerController>();
                 if (target != null && target != shooter
                     && HitRules.CanHit(shooter.Id, shooter.Team, target.Id, target.Team, target.CanBeHit))

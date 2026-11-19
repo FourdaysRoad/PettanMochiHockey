@@ -1,6 +1,8 @@
 using MochiHockey.Core;
 using MochiHockey.Runtime;
 using NUnit.Framework;
+using UnityEngine.TestTools.Constraints;
+using Is = UnityEngine.TestTools.Constraints.Is;
 
 namespace MochiHockey.Tests.EditMode
 {
@@ -53,6 +55,37 @@ namespace MochiHockey.Tests.EditMode
 
             Assert.That(_hud.ShowKickoff, Is.False);
             Assert.That(_hud.TimerText, Is.EqualTo("2:59"));
+        }
+
+        [Test]
+        public void TimerAndScore_DoNotAllocateWhileTheValueStaysTheSame()
+        {
+            // HUD は毎フレーム読むので、表示が変わらない間は同じ文字列を返す（TASK-0031）
+            _rules.Tick(3f);
+            _rules.Tick(0.1f);
+            var first = _hud.TimerText;
+            _ = _hud.ScoreAText;
+            _ = _hud.ScoreBText;
+
+            Assert.That(() =>
+            {
+                _rules.Tick(0.01f);
+                _ = _hud.TimerText;
+                _ = _hud.ScoreAText;
+                _ = _hud.ScoreBText;
+            }, Is.Not.AllocatingGCMemory());
+            Assert.That(ReferenceEquals(first, _hud.TimerText), Is.True);
+        }
+
+        [Test]
+        public void Timer_ChangesWhenTheSecondChanges()
+        {
+            _rules.Tick(3f);
+            _rules.Tick(0.5f);
+            Assert.That(_hud.TimerText, Is.EqualTo("2:59"));
+
+            _rules.Tick(1f);
+            Assert.That(_hud.TimerText, Is.EqualTo("2:58"));
         }
 
         [Test]

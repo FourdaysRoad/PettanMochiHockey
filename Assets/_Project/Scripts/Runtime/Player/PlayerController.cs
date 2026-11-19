@@ -111,6 +111,13 @@ namespace MochiHockey.Runtime
         /// <summary>どれかのプレイヤーに何か起きた（効果音用）。</summary>
         public static event System.Action<PlayerController, PlayerEvent> AnyPlayerEvent;
 
+        private static readonly List<PlayerController> s_active = new List<PlayerController>();
+
+        /// <summary>
+        /// 今いる（有効な）プレイヤー全員。カメラなどが毎フレーム見るので、シーンを探さずにここを使う（TASK-0031）。
+        /// </summary>
+        public static IReadOnlyList<PlayerController> Active => s_active;
+
         /// <summary>移動の入力（操作できないときは 0）。</summary>
         public Vector2 MoveInput => CanControl ? new Vector2(_moveInput.X, _moveInput.Y) : Vector2.zero;
 
@@ -148,6 +155,19 @@ namespace MochiHockey.Runtime
             _pettan.StateChanged += OnPettanStateChanged;
             _pettan.Bounced += () => AnyPlayerEvent?.Invoke(this, PlayerEvent.LaunchBounced);
             _pettan.Recovered += () => AnyPlayerEvent?.Invoke(this, PlayerEvent.Recovered);
+        }
+
+        private void OnEnable()
+        {
+            if (!s_active.Contains(this))
+            {
+                s_active.Add(this);
+            }
+        }
+
+        private void OnDisable()
+        {
+            s_active.Remove(this);
         }
 
         /// <summary>スティック・移動キーの入力（長さ 1 まで）。</summary>

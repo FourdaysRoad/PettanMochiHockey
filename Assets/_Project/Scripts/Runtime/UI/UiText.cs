@@ -52,11 +52,35 @@ namespace MochiHockey.Runtime
 
         // ---- ワールド空間のゲージ ----
 
-        public static string LevelLabel(MochiLevel level) => $"Lv.{(int)level}";
+        // 毎フレーム表示し直すので、よく使う値は最初に作った文字列を使い回す（TASK-0031：ブラウザでの GC を減らす）
+        private const int CachedNumbers = 100;
+        private static readonly string[] s_numbers = Cache(CachedNumbers, n => n.ToString());
+        private static readonly string[] s_levels = Cache(4, n => $"Lv.{n}");
+        private static readonly string[] s_multipliers = Cache(10, n => $"x{n}");
+        private static readonly string[] s_players = Cache(9, n => $"{n}P");
 
-        public static string MultiplierLabel(int points) => $"x{points}";
+        public static string LevelLabel(MochiLevel level) => Pick(s_levels, (int)level, n => $"Lv.{n}");
+
+        public static string MultiplierLabel(int points) => Pick(s_multipliers, points, n => $"x{n}");
 
         /// <summary>プレイヤー番号（1〜4）の表示。番号が決まっていなければ "?"。</summary>
-        public static string PlayerLabel(int number) => number >= 1 ? $"{number}P" : "?";
+        public static string PlayerLabel(int number) => number >= 1 ? Pick(s_players, number, n => $"{n}P") : "?";
+
+        /// <summary>数（スコアなど）の表示。</summary>
+        public static string Number(int value) => Pick(s_numbers, value, n => n.ToString());
+
+        private static string[] Cache(int count, System.Func<int, string> format)
+        {
+            var cache = new string[count];
+            for (var i = 0; i < count; i++)
+            {
+                cache[i] = format(i);
+            }
+
+            return cache;
+        }
+
+        private static string Pick(string[] cache, int value, System.Func<int, string> format) =>
+            value >= 0 && value < cache.Length ? cache[value] : format(value);
     }
 }

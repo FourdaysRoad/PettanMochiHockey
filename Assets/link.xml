@@ -1,0 +1,8 @@
+<!--
+  Managed Stripping を High にしても、このプロジェクトのコードは削らない（TASK-0031）。
+  シーン・プレハブから参照されるコンポーネントや、Inspector で設定する値の型が消えないようにする。
+-->
+<linker>
+  <assembly fullname="MochiHockey.Core" preserve="all" />
+  <assembly fullname="MochiHockey.Runtime" preserve="all" />
+</linker>

@@ -13,6 +13,9 @@ namespace MochiHockey.Runtime
     {
         private readonly HashSet<PlayerController> _alreadyHit = new HashSet<PlayerController>();
         private readonly List<PlayerController> _hits = new List<PlayerController>();
+
+        // 当たり判定で見つかったコライダーの入れ物（毎回配列を作らないように使い回す。TASK-0031）
+        private readonly Collider[] _overlaps = new Collider[32];
         private PlayerController _owner;
 
         private void Awake()
@@ -35,8 +38,10 @@ namespace MochiHockey.Runtime
             forward.y = 0f;
             var center = transform.position + forward.normalized * mallet.Reach;
 
-            foreach (var hit in Physics.OverlapSphere(center, mallet.Radius, ~0, QueryTriggerInteraction.Ignore))
+            var count = Physics.OverlapSphereNonAlloc(center, mallet.Radius, _overlaps, ~0, QueryTriggerInteraction.Ignore);
+            for (var i = 0; i < count; i++)
             {
+                var hit = _overlaps[i];
                 var target = hit.GetComponentInParent<PlayerController>();
                 if (target == null || target == _owner || !target.enabled || _alreadyHit.Contains(target))
                 {
