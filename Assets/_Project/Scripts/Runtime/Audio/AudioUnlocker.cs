@@ -21,6 +21,13 @@ namespace MochiHockey.Runtime
             InputSystem.onAnyButtonPress.CallOnce(_ => Unlock());
         }
 
+        /// <summary>テスト用：最初の入力の前（音を鳴らせない状態）に戻す。</summary>
+        public static void LockForTests()
+        {
+            Unlocked = false;
+            AudioListener.pause = true;
+        }
+
         /// <summary>音声を鳴らせるようにする。何度呼んでもよい。</summary>
         public static void Unlock()
         {

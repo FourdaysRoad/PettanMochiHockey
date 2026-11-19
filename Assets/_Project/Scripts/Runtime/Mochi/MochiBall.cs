@@ -41,6 +41,12 @@ namespace MochiHockey.Runtime
 
         public bool IsHeld => Holder != null;
 
+        /// <summary>餅に何か起きた（効果音用）。</summary>
+        public static event System.Action<MochiBall, BallEvent> AnyBallEvent;
+
+        /// <summary>最後に打ったときのチャージ段階（効果音用）。</summary>
+        public int LastShotStage { get; private set; }
+
         public MochiLevel Level => _mochi?.Level ?? MochiLevel.Lv1;
 
         public int RiceCount => _mochi?.RiceCount ?? 0;
@@ -112,7 +118,25 @@ namespace MochiHockey.Runtime
             EndPierce();
         }
 
-        private void OnCollisionEnter(Collision collision) => TryAttachFromContact(collision);
+        private void OnCollisionEnter(Collision collision)
+        {
+            TryAttachFromContact(collision);
+            CheckBounce(collision);
+        }
+
+        /// <summary>持たれていない餅が、プレイヤー以外（壁など）に勢いよく当たったら知らせる。</summary>
+        private void CheckBounce(Collision collision)
+        {
+            if (!enabled || IsHeld || config == null || collision.collider.GetComponentInParent<PlayerController>() != null)
+            {
+                return;
+            }
+
+            if (collision.relativeVelocity.magnitude >= config.Audio.BallBounceMinSpeed)
+            {
+                AnyBallEvent?.Invoke(this, BallEvent.Bounced);
+            }
+        }
 
         private void OnCollisionStay(Collision collision) => TryAttachFromContact(collision);
 
@@ -173,6 +197,9 @@ namespace MochiHockey.Runtime
             {
                 BeginPierce(shooter);
             }
+
+            LastShotStage = stage;
+            AnyBallEvent?.Invoke(this, BallEvent.Shot);
         }
 
         /// <summary>ゴールに入った餅を消す。持たれていれば手放させる。</summary>
@@ -224,7 +251,22 @@ namespace MochiHockey.Runtime
         }
 
         /// <summary>ご飯粒を吸収する。持たれているときだけ成功する（REQ-012）。</summary>
-        public bool TryAbsorbRice() => enabled && _mochi.TryAbsorbRice();
+        public bool TryAbsorbRice()
+        {
+            if (!enabled)
+            {
+                return false;
+            }
+
+            var before = Level;
+            if (!_mochi.TryAbsorbRice())
+            {
+                return false;
+            }
+
+            AnyBallEvent?.Invoke(this, Level != before ? BallEvent.LevelUp : BallEvent.RiceAbsorbed);
+            return true;
+        }
 
         private void TryAttachFromContact(Collision collision)
         {

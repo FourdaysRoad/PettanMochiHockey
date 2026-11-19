@@ -32,6 +32,9 @@ namespace MochiHockey.Runtime
         /// <summary>演出（Runtime だけが使う）。</summary>
         public VfxConfig Vfx = new VfxConfig();
 
+        /// <summary>音（Runtime だけが使う）。</summary>
+        public AudioConfig Audio = new AudioConfig();
+
         /// <summary>Core 用の設定に変換する。値がおかしければ InvalidOperationException を投げる。</summary>
         public BalanceSettings ToSettings()
         {
@@ -337,6 +340,31 @@ namespace MochiHockey.Runtime
 
             [Tooltip("仮：衝撃波が広がりきったときの直径（m）")]
             [Min(0.1f)] public float ShockwaveSize = 3.5f;
+        }
+
+        [Serializable]
+        public sealed class AudioConfig
+        {
+            [Tooltip("仮：合成する音のサンプリング周波数（Hz）。低いほど作るのが速く、メモリも少ない")]
+            [Range(8000, 48000)] public int SampleRate = 22050;
+
+            [Tooltip("仮：効果音の音量（0〜1）")]
+            [Range(0f, 1f)] public float SeVolume = 0.8f;
+
+            [Tooltip("仮：BGM の音量（0〜1）")]
+            [Range(0f, 1f)] public float BgmVolume = 0.35f;
+
+            [Tooltip("仮：BGM のテンポ（1 分あたりの拍）")]
+            [Range(40f, 240f)] public float BgmTempo = 132f;
+
+            [Tooltip("仮：同じ効果音でも高さを少しずつ変える幅（0.06 なら ±6%）。くり返し聞いても飽きにくくする")]
+            [Range(0f, 0.3f)] public float PitchJitter = 0.06f;
+
+            [Tooltip("仮：同時に鳴らせる効果音の数")]
+            [Range(1, 32)] public int Voices = 10;
+
+            [Tooltip("仮：餅が壁などに当たったときに音を鳴らす最低の速さ（m/s）")]
+            [Min(0f)] public float BallBounceMinSpeed = 2f;
         }
     }
 }

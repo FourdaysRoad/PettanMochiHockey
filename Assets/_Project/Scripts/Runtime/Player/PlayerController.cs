@@ -108,6 +108,9 @@ namespace MochiHockey.Runtime
         /// <summary>どれかのプレイヤーが杵などで叩かれて HitStop に入った（Pettan!!! の演出用）。</summary>
         public static event System.Action<PlayerController> AnyHitTaken;
 
+        /// <summary>どれかのプレイヤーに何か起きた（効果音用）。</summary>
+        public static event System.Action<PlayerController, PlayerEvent> AnyPlayerEvent;
+
         /// <summary>移動の入力（操作できないときは 0）。</summary>
         public Vector2 MoveInput => CanControl ? new Vector2(_moveInput.X, _moveInput.Y) : Vector2.zero;
 
@@ -143,6 +146,8 @@ namespace MochiHockey.Runtime
             _shotCharge = new ShotCharge(_settings);
             _pettan = new PettanStateMachine(settings.Pettan, settings.Rink);
             _pettan.StateChanged += OnPettanStateChanged;
+            _pettan.Bounced += () => AnyPlayerEvent?.Invoke(this, PlayerEvent.LaunchBounced);
+            _pettan.Recovered += () => AnyPlayerEvent?.Invoke(this, PlayerEvent.Recovered);
         }
 
         /// <summary>スティック・移動キーの入力（長さ 1 まで）。</summary>
@@ -188,6 +193,7 @@ namespace MochiHockey.Runtime
             _swingHitSomeone = false;
             _mallet?.BeginSwing();
             Swung?.Invoke();
+            AnyPlayerEvent?.Invoke(this, PlayerEvent.Swung);
         }
 
         /// <summary>
@@ -273,6 +279,7 @@ namespace MochiHockey.Runtime
                 {
                     _motion.AddImpulse(DashDirection() * _settings.DashImpulse);
                     Dashed?.Invoke();
+                    AnyPlayerEvent?.Invoke(this, PlayerEvent.Dashed);
                 }
             }
 
@@ -383,6 +390,7 @@ namespace MochiHockey.Runtime
             }
 
             AnyHitTaken?.Invoke(this);
+            AnyPlayerEvent?.Invoke(this, PlayerEvent.Hit);
         }
 
         /// <summary>杵を当てた側を、叩かれた側と同じ時間だけ止める。</summary>
@@ -403,6 +411,7 @@ namespace MochiHockey.Runtime
                     break;
                 case PettanState.Stuck:
                     SetCollidersEnabled(false);
+                    AnyPlayerEvent?.Invoke(this, PlayerEvent.Stuck);
                     break;
                 case PettanState.Invincible:
                     SetCollidersEnabled(true);
