@@ -9,6 +9,9 @@ namespace MochiHockey.Runtime
         /// <summary>ダッシュした。</summary>
         Dashed,
 
+        /// <summary>壁キックで飛び出した（連鎖の数は PlayerController.WallKickChain）。</summary>
+        WallKicked,
+
         /// <summary>叩かれて HitStop に入った。</summary>
         Hit,
 

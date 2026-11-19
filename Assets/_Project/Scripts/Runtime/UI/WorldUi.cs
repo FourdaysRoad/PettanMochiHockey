@@ -15,6 +15,7 @@ namespace MochiHockey.Runtime
         private static Sprite s_ring;
         private static Sprite s_star;
         private static Sprite s_burst;
+        private static Sprite s_arrow;
         private static Font s_font;
 
         public static Font Font => s_font != null ? s_font : s_font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
@@ -104,6 +105,53 @@ namespace MochiHockey.Runtime
             var image = CreateRing(parent, name, size);
             image.color = color;
             return image;
+        }
+
+        /// <summary>上を向いた矢印（壁キックの狙い）。色は color で付ける。</summary>
+        public static Image CreateArrow(Transform parent, string name, Vector2 size, Color color)
+        {
+            var image = CreateRect(name, parent, Vector2.zero, size).gameObject.AddComponent<Image>();
+            image.sprite = Arrow;
+            image.color = color;
+            return image;
+        }
+
+        /// <summary>白い矢印の画像（上向き。下 6 割が軸、上 4 割が矢じり）。</summary>
+        private static Sprite Arrow
+        {
+            get
+            {
+                if (s_arrow != null)
+                {
+                    return s_arrow;
+                }
+
+                const int width = 64;
+                const int height = 128;
+                var texture = new Texture2D(width, height, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
+                var points = new[]
+                {
+                    new Vector2(width * 0.35f, 0f),
+                    new Vector2(width * 0.65f, 0f),
+                    new Vector2(width * 0.65f, height * 0.6f),
+                    new Vector2(width - 1f, height * 0.6f),
+                    new Vector2(width / 2f, height - 1f),
+                    new Vector2(0f, height * 0.6f),
+                    new Vector2(width * 0.35f, height * 0.6f),
+                };
+                for (var y = 0; y < height; y++)
+                {
+                    for (var x = 0; x < width; x++)
+                    {
+                        var inside = IsInside(new Vector2(x + 0.5f, y + 0.5f), points);
+                        texture.SetPixel(x, y, new Color(1f, 1f, 1f, inside ? 1f : 0f));
+                    }
+                }
+
+                texture.Apply();
+                s_arrow = Sprite.Create(texture, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f));
+                return s_arrow;
+            }
         }
 
         /// <summary>白いトゲトゲの吹き出しの画像。</summary>

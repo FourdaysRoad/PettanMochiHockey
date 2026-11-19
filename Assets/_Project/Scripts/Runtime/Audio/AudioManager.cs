@@ -178,6 +178,10 @@ namespace MochiHockey.Runtime
                 case PlayerEvent.Dashed:
                     Play(SoundId.Dash, Jitter(), 0.7f);
                     break;
+                case PlayerEvent.WallKicked:
+                    // 連鎖するほど高く（2 オクターブ弱まで）
+                    Play(SoundId.WallKick, Mathf.Min(1.8f, 1f + 0.1f * (player.WallKickChain - 1)));
+                    break;
                 case PlayerEvent.Hit:
                     Play(SoundId.Pettan, Jitter());
                     break;

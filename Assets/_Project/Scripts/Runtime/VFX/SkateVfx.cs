@@ -102,6 +102,7 @@ namespace MochiHockey.Runtime
             }
 
             _player.Dashed += OnDashed;
+            _player.WallKicked += OnWallKicked;
 
             if (material == null)
             {
@@ -114,6 +115,7 @@ namespace MochiHockey.Runtime
             if (_player != null)
             {
                 _player.Dashed -= OnDashed;
+                _player.WallKicked -= OnWallKicked;
             }
         }
 
@@ -142,6 +144,12 @@ namespace MochiHockey.Runtime
             // ダッシュ直後の速度はまだ反映されていないので、向いている方向の逆へ飛ばす
             var forward = transform.forward;
             Spray(_dashCount, new Vector2(forward.x, forward.z));
+        }
+
+        private void OnWallKicked()
+        {
+            // 蹴った壁の側（狙いの逆）へ、ダッシュより多めに飛ばす
+            Spray(_dashCount * 2, _player.WallKickAim);
         }
 
         private void Spray(int count, Vector2 planarVelocity)

@@ -18,6 +18,7 @@ namespace MochiHockey.Runtime
         public MatchConfig Match = new MatchConfig();
         public RiceConfig Rice = new RiceConfig();
         public PlayerConfig Player = new PlayerConfig();
+        public WallKickConfig WallKick = new WallKickConfig();
         public RinkConfig Rink = new RinkConfig();
 
         /// <summary>餅の物理・見た目まわり（Runtime だけが使う。Core には渡さない）。</summary>
@@ -87,6 +88,18 @@ namespace MochiHockey.Runtime
                     ChargeStages = Player.ChargeStages,
                     SwingActiveTime = Player.SwingActiveTime,
                     WhiffRecoveryTime = Player.WhiffRecoveryTime,
+                },
+                WallKick = new WallKickSettings
+                {
+                    Range = WallKick.Range,
+                    HoldTime = WallKick.HoldTime,
+                    AimMaxTime = WallKick.AimMaxTime,
+                    MinAwayDot = WallKick.MinAwayDot,
+                    BaseSpeed = WallKick.BaseSpeed,
+                    ChainSpeedBonus = WallKick.ChainSpeedBonus,
+                    MaxSpeed = WallKick.MaxSpeed,
+                    ChainWindow = WallKick.ChainWindow,
+                    MaxFlightTime = WallKick.MaxFlightTime,
                 },
                 Rink = ToRinkBounds(Rink.Size),
             };
@@ -239,6 +252,37 @@ namespace MochiHockey.Runtime
 
             [Tooltip("仮：空振りしたときの硬直の秒数")]
             [Min(0f)] public float WhiffRecoveryTime = 0.4f;
+        }
+
+        [Serializable]
+        public sealed class WallKickConfig
+        {
+            [Tooltip("仮：壁キックできる、プレイヤーの中心から壁までの距離（m）。体の半径は 0.5")]
+            [Min(0f)] public float Range = 1.1f;
+
+            [Tooltip("仮：ダッシュをこの秒数押し続けたら壁キックの狙いに入る（短ければふつうのダッシュ）")]
+            [Min(0f)] public float HoldTime = 0.12f;
+
+            [Tooltip("仮：狙っていられる最長の秒数。過ぎたら今の向きへ自動で飛ぶ")]
+            [Min(0.1f)] public float AimMaxTime = 2f;
+
+            [Tooltip("仮：狙える向きの限度。壁の正面との内積がこれ以上（0 で壁と平行まで、1 で正面だけ）")]
+            [Range(0f, 0.95f)] public float MinAwayDot = 0.2f;
+
+            [Tooltip("仮：1 回目の壁キックの速さ（m/s）。ダッシュ直後は 14 くらい")]
+            [Min(0f)] public float BaseSpeed = 18f;
+
+            [Tooltip("仮：連鎖 1 回ごとに足す速さの割合（0.2 なら 1.2 倍、1.4 倍…）")]
+            [Min(0f)] public float ChainSpeedBonus = 0.2f;
+
+            [Tooltip("仮：壁キックの速さの上限（m/s）。速すぎると壁や相手をすり抜けることがある")]
+            [Min(0f)] public float MaxSpeed = 32f;
+
+            [Tooltip("仮：壁に着いてから、次の壁キックを受け付ける秒数。過ぎたら連鎖が終わる")]
+            [Min(0f)] public float ChainWindow = 1f;
+
+            [Tooltip("仮：飛んでいられる最長の秒数（壁に着かなかったときの保険）")]
+            [Min(0.1f)] public float MaxFlightTime = 3f;
         }
 
         [Serializable]

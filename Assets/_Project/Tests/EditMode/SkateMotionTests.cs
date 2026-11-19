@@ -162,5 +162,17 @@ namespace MochiHockey.Tests.EditMode
                 _motion.Tick(Dt, input, speedMultiplier);
             }
         }
+
+        [Test]
+        public void SetVelocity_ReplacesTheVelocity()
+        {
+            // 壁キックで飛び出した勢いをそのまま入れる（TASK-0034）
+            var motion = new SkateMotion(TestSettings.CreatePlayer());
+            motion.AddImpulse(new Vector2(3f, 0f));
+
+            motion.SetVelocity(new Vector2(0f, -20f));
+
+            Assert.That(motion.Velocity, Is.EqualTo(new Vector2(0f, -20f)));
+        }
     }
 }

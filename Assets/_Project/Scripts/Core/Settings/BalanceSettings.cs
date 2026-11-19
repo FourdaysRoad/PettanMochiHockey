@@ -16,6 +16,7 @@ namespace MochiHockey.Core
         public MatchSettings Match;
         public RiceSettings Rice;
         public PlayerSettings Player;
+        public WallKickSettings WallKick;
 
         /// <summary>リンク外周の壁。シーンに依存しない値として持つ。</summary>
         public RinkBounds Rink;
@@ -30,6 +31,7 @@ namespace MochiHockey.Core
             Require(Match, nameof(Match));
             Require(Rice, nameof(Rice));
             Require(Player, nameof(Player));
+            Require(WallKick, nameof(WallKick));
 
             if (!Rink.IsValid)
             {
@@ -51,6 +53,19 @@ namespace MochiHockey.Core
             {
                 throw new InvalidOperationException(
                     $"{nameof(PettanSettings.LaunchWallBounces)} ({Pettan.LaunchWallBounces}) must not be negative.");
+            }
+
+            if (WallKick.MaxSpeed < WallKick.BaseSpeed)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(WallKickSettings.MaxSpeed)} ({WallKick.MaxSpeed}) must not be less than " +
+                    $"{nameof(WallKickSettings.BaseSpeed)} ({WallKick.BaseSpeed}).");
+            }
+
+            if (WallKick.MinAwayDot < 0f || WallKick.MinAwayDot >= 1f)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(WallKickSettings.MinAwayDot)} ({WallKick.MinAwayDot}) must be in [0, 1).");
             }
 
             if (Rice.MinCount > Rice.MaxCount)

@@ -51,6 +51,12 @@ namespace MochiHockey.Core
             Velocity += impulse;
         }
 
+        /// <summary>速度を置き換える（壁キックで飛び出したときなど）。最高速度を超えてよい。</summary>
+        public void SetVelocity(Vector2 velocity)
+        {
+            Velocity = velocity;
+        }
+
         public void Stop()
         {
             Velocity = Vector2.Zero;

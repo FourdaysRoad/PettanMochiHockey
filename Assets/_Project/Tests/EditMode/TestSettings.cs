@@ -18,6 +18,7 @@ namespace MochiHockey.Tests.EditMode
                 Match = CreateMatch(),
                 Rice = CreateRice(),
                 Player = CreatePlayer(),
+                WallKick = CreateWallKick(),
                 Rink = CreateRink(),
             };
         }
@@ -92,6 +93,22 @@ namespace MochiHockey.Tests.EditMode
                 ChargeStages = 2,
                 SwingActiveTime = 0.15f,
                 WhiffRecoveryTime = 0.4f,
+            };
+        }
+
+        public static WallKickSettings CreateWallKick()
+        {
+            return new WallKickSettings
+            {
+                Range = 1f,
+                HoldTime = 0.18f,
+                AimMaxTime = 2f,
+                MinAwayDot = 0.2f,
+                BaseSpeed = 14f,
+                ChainSpeedBonus = 0.25f,
+                MaxSpeed = 26f,
+                ChainWindow = 1f,
+                MaxFlightTime = 3f,
             };
         }
     }

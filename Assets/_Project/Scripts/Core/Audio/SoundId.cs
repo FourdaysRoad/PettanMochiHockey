@@ -21,6 +21,9 @@ namespace MochiHockey.Core
         /// <summary>ダッシュ（しゃっ）。</summary>
         Dash,
 
+        /// <summary>壁キック（ばしゅっ）。連鎖するほど高く鳴らす。</summary>
+        WallKick,
+
         /// <summary>餅を打つ（ぱこん）。</summary>
         Shot,
 

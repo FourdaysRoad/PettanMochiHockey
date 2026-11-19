@@ -163,9 +163,15 @@ namespace MochiHockey.Runtime
             }
 
             _controller.SetMoveInput(Vector2.ClampMagnitude(_move.ReadValue<Vector2>(), 1f));
+            // 壁の近くでは長押しで壁キックになるので、押した・離したを両方伝える（REQ-028）
             if (_dash.WasPressedThisFrame())
             {
-                _controller.RequestDash();
+                _controller.PressDash();
+            }
+
+            if (_dash.WasReleasedThisFrame())
+            {
+                _controller.ReleaseDash();
             }
 
             if (_shoot.WasPressedThisFrame())

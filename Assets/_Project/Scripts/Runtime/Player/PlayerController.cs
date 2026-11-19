@@ -37,6 +37,12 @@ namespace MochiHockey.Runtime
         private System.Numerics.Vector2 _moveInput;
         private bool _dashRequested;
 
+        private WallKick _wallKick;
+        private RinkBounds _rink;
+        private float _bodyRadius;
+        private bool _dashPressed;
+        private bool _dashReleased;
+
         private float _swingRemaining;
         private bool _swingHitSomeone;
         private float _whiffRemaining;
@@ -94,8 +100,8 @@ namespace MochiHockey.Runtime
         /// <summary>杵で叩かれるか（Normal のときだけ）。</summary>
         public bool CanBeHit => _pettan != null && _pettan.CanBeHit;
 
-        /// <summary>餅を拾えるか（吹っ飛び中・貼り付き中は拾えない）。</summary>
-        public bool CanHoldBall => _pettan != null && _pettan.CanControl;
+        /// <summary>餅を拾えるか（吹っ飛び中・貼り付き中・壁キック中は拾えない）。</summary>
+        public bool CanHoldBall => _pettan != null && _pettan.CanControl && (_wallKick == null || !_wallKick.ControlsMovement);
 
         public bool IsSwinging => _swingRemaining > 0f;
 
@@ -104,6 +110,18 @@ namespace MochiHockey.Runtime
 
         /// <summary>ダッシュした（氷しぶきの演出用）。</summary>
         public event System.Action Dashed;
+
+        /// <summary>壁キックで飛び出した（演出用。連鎖の数は WallKickChain）。</summary>
+        public event System.Action WallKicked;
+
+        /// <summary>壁キックの状態（REQ-028）。</summary>
+        public WallKickPhase WallKickPhase => _wallKick?.Phase ?? WallKickPhase.None;
+
+        /// <summary>続けて壁キックした回数（REQ-029）。</summary>
+        public int WallKickChain => _wallKick?.Chain ?? 0;
+
+        /// <summary>壁キックで狙っている向き（床面。x, z）。</summary>
+        public Vector2 WallKickAim => _wallKick == null ? Vector2.zero : ToUnity(_wallKick.AimDirection);
 
         /// <summary>どれかのプレイヤーが杵などで叩かれて HitStop に入った（Pettan!!! の演出用）。</summary>
         public static event System.Action<PlayerController> AnyHitTaken;
@@ -152,6 +170,12 @@ namespace MochiHockey.Runtime
             _stamina = new Stamina(_settings);
             _shotCharge = new ShotCharge(_settings);
             _pettan = new PettanStateMachine(settings.Pettan, settings.Rink);
+            _rink = settings.Rink;
+            _wallKick = new WallKick(settings.WallKick, settings.Rink);
+            var capsule = GetComponent<CapsuleCollider>();
+            _bodyRadius = capsule != null
+                ? capsule.radius * Mathf.Max(transform.lossyScale.x, transform.lossyScale.z)
+                : 0.5f;
             _pettan.StateChanged += OnPettanStateChanged;
             _pettan.Bounced += () => AnyPlayerEvent?.Invoke(this, PlayerEvent.LaunchBounced);
             _pettan.Recovered += () => AnyPlayerEvent?.Invoke(this, PlayerEvent.Recovered);
@@ -176,10 +200,25 @@ namespace MochiHockey.Runtime
             _moveInput = new System.Numerics.Vector2(input.x, input.y);
         }
 
-        /// <summary>ダッシュボタンが押された。次の Update でスタミナが足りればダッシュする。</summary>
+        /// <summary>ダッシュボタンが押された。次の Update でスタミナが足りればダッシュする（壁キックは見ない）。</summary>
         public void RequestDash()
         {
             _dashRequested = true;
+        }
+
+        /// <summary>
+        /// ダッシュボタンを押した（PlayerInputReader から）。壁の近くなら長押しで壁キック（REQ-028）、
+        /// それ以外はすぐダッシュする。
+        /// </summary>
+        public void PressDash()
+        {
+            _dashPressed = true;
+        }
+
+        /// <summary>ダッシュボタンを離した。壁キックの狙いなら飛ぶ、短く押しただけならダッシュする。</summary>
+        public void ReleaseDash()
+        {
+            _dashReleased = true;
         }
 
         /// <summary>パス／シュートボタンを押した。長押しでチャージする。</summary>
@@ -260,6 +299,9 @@ namespace MochiHockey.Runtime
             _hitStopRemaining = 0f;
             _pendingAttacker = null;
             _dashRequested = false;
+            _dashPressed = false;
+            _dashReleased = false;
+            _wallKick.Cancel();
             _moveInput = System.Numerics.Vector2.Zero;
 
             _body.isKinematic = false;
@@ -287,7 +329,17 @@ namespace MochiHockey.Runtime
             if (IsPettanMoving())
             {
                 _dashRequested = false;
+                _dashPressed = false;
+                _dashReleased = false;
                 ApplyPettanScale();
+                return;
+            }
+
+            UpdateWallKick(deltaTime);
+            if (_wallKick.ControlsMovement)
+            {
+                _dashRequested = false;
+                UpdateBlink();
                 return;
             }
 
@@ -333,6 +385,20 @@ namespace MochiHockey.Runtime
             if (IsInHitStop)
             {
                 _body.linearVelocity = new Vector3(0f, _body.linearVelocity.y, 0f);
+                return;
+            }
+
+            if (_wallKick.ControlsMovement)
+            {
+                // 狙っている・張り付いている間は止まり、飛んでいる間は壁キックの速度でまっすぐ進む
+                var kick = _wallKick.Velocity;
+                _body.linearVelocity = new Vector3(kick.X, _body.linearVelocity.y, kick.Y);
+                var facing = _wallKick.Phase == WallKickPhase.Flying ? kick : _wallKick.AimDirection;
+                if (facing.LengthSquared() > 0f)
+                {
+                    _body.rotation = Quaternion.LookRotation(new Vector3(facing.X, 0f, facing.Y), Vector3.up);
+                }
+
                 return;
             }
 
@@ -391,6 +457,7 @@ namespace MochiHockey.Runtime
 
             _shotCharge.Cancel();
             _motion.Stop();
+            _wallKick.Cancel();
             _swingRemaining = 0f;
             _whiffRemaining = 0f;
             _hitStopRemaining = 0f;
@@ -512,6 +579,96 @@ namespace MochiHockey.Runtime
                     Physics.IgnoreCollision(mine, theirs, !collide);
                 }
             }
+        }
+
+        /// <summary>壁キック（REQ-028, REQ-029）の入力と時間を進める。</summary>
+        private void UpdateWallKick(float deltaTime)
+        {
+            var position = new System.Numerics.Vector2(_body.position.x, _body.position.z);
+            var before = _wallKick.Phase;
+
+            if (_dashPressed)
+            {
+                _dashPressed = false;
+                var canKick = CanControl && HeldBall == null;
+                if (!_wallKick.PressDash(position, canKick))
+                {
+                    _dashRequested = true;
+                }
+            }
+
+            // 長押しを待っている間に餅を拾ったら、壁キックはやめてふつうのダッシュにする
+            if (_wallKick.Phase == WallKickPhase.Holding && HeldBall != null)
+            {
+                _wallKick.Cancel();
+                _dashRequested = true;
+            }
+
+            if (_wallKick.Phase == WallKickPhase.Aiming && CanControl)
+            {
+                _wallKick.SetAim(_moveInput);
+            }
+
+            var result = WallKickResult.None;
+            if (_dashReleased)
+            {
+                _dashReleased = false;
+                result = _wallKick.ReleaseDash();
+            }
+
+            if (result == WallKickResult.None)
+            {
+                result = _wallKick.Tick(deltaTime, position);
+            }
+
+            switch (result)
+            {
+                case WallKickResult.Dash:
+                    _dashRequested = true;
+                    break;
+                case WallKickResult.Launched:
+                    _motion.SetVelocity(_wallKick.Velocity);
+                    WallKicked?.Invoke();
+                    AnyPlayerEvent?.Invoke(this, PlayerEvent.WallKicked);
+                    break;
+            }
+
+            var now = _wallKick.Phase;
+            if (now != before && _wallKick.IsHoldingPosition)
+            {
+                _motion.Stop();
+                SnapToWall(_wallKick.WallNormal);
+            }
+            else if (before == WallKickPhase.Clinging && now == WallKickPhase.None)
+            {
+                _motion.Stop();
+            }
+        }
+
+        /// <summary>壁に体をぴったり付ける（狙い始めたとき・飛んだ先の壁に着いたとき）。</summary>
+        private void SnapToWall(System.Numerics.Vector2 normal)
+        {
+            var position = _body.position;
+            if (normal.X > 0.5f)
+            {
+                position.x = _rink.Min.X + _bodyRadius;
+            }
+            else if (normal.X < -0.5f)
+            {
+                position.x = _rink.Max.X - _bodyRadius;
+            }
+            else if (normal.Y > 0.5f)
+            {
+                position.z = _rink.Min.Y + _bodyRadius;
+            }
+            else
+            {
+                position.z = _rink.Max.Y - _bodyRadius;
+            }
+
+            _body.position = position;
+            transform.position = position;
+            _body.linearVelocity = new Vector3(0f, _body.linearVelocity.y, 0f);
         }
 
         /// <summary>入力の向き → いまの進行方向 → 体の正面、の順に決める。</summary>

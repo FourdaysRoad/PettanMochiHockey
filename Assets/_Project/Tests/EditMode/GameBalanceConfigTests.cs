@@ -93,6 +93,22 @@ namespace MochiHockey.Tests.EditMode
         }
 
         [Test]
+        public void ToSettings_CopiesWallKickValues()
+        {
+            var kick = _config.ToSettings().WallKick;
+
+            Assert.That(kick.Range, Is.EqualTo(1.1f));
+            Assert.That(kick.HoldTime, Is.EqualTo(0.2f));
+            Assert.That(kick.AimMaxTime, Is.EqualTo(2.5f));
+            Assert.That(kick.MinAwayDot, Is.EqualTo(0.3f));
+            Assert.That(kick.BaseSpeed, Is.EqualTo(15f));
+            Assert.That(kick.ChainSpeedBonus, Is.EqualTo(0.3f));
+            Assert.That(kick.MaxSpeed, Is.EqualTo(27f));
+            Assert.That(kick.ChainWindow, Is.EqualTo(1.2f));
+            Assert.That(kick.MaxFlightTime, Is.EqualTo(3.5f));
+        }
+
+        [Test]
         public void ToSettings_CreatesRinkCenteredOnOriginFromSize()
         {
             var rink = _config.ToSettings().Rink;
@@ -213,6 +229,16 @@ namespace MochiHockey.Tests.EditMode
             config.Player.ChargeStages = 3;
             config.Player.SwingActiveTime = 0.16f;
             config.Player.WhiffRecoveryTime = 0.45f;
+
+            config.WallKick.Range = 1.1f;
+            config.WallKick.HoldTime = 0.2f;
+            config.WallKick.AimMaxTime = 2.5f;
+            config.WallKick.MinAwayDot = 0.3f;
+            config.WallKick.BaseSpeed = 15f;
+            config.WallKick.ChainSpeedBonus = 0.3f;
+            config.WallKick.MaxSpeed = 27f;
+            config.WallKick.ChainWindow = 1.2f;
+            config.WallKick.MaxFlightTime = 3.5f;
 
             config.Rink.Size = new UnityEngine.Vector2(26f, 15f);
         }

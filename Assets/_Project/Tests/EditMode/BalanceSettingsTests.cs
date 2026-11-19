@@ -19,6 +19,7 @@ namespace MochiHockey.Tests.EditMode
         [TestCase(nameof(BalanceSettings.Match))]
         [TestCase(nameof(BalanceSettings.Rice))]
         [TestCase(nameof(BalanceSettings.Player))]
+        [TestCase(nameof(BalanceSettings.WallKick))]
         public void Validate_MissingChildSettings_Throws(string child)
         {
             var settings = TestSettings.Create();
@@ -109,6 +110,27 @@ namespace MochiHockey.Tests.EditMode
             settings.Rice.MaxCount = 10;
 
             Assert.Throws<InvalidOperationException>(() => settings.Validate());
+        }
+
+        [Test]
+        public void Validate_WallKickMaxSpeedBelowBase_Throws()
+        {
+            var settings = TestSettings.Create();
+            settings.WallKick.MaxSpeed = settings.WallKick.BaseSpeed - 1f;
+
+            var ex = Assert.Throws<InvalidOperationException>(() => settings.Validate());
+            StringAssert.Contains(nameof(WallKickSettings.MaxSpeed), ex.Message);
+        }
+
+        [TestCase(-0.1f)]
+        [TestCase(1f)]
+        public void Validate_WallKickMinAwayDotOutOfRange_Throws(float dot)
+        {
+            var settings = TestSettings.Create();
+            settings.WallKick.MinAwayDot = dot;
+
+            var ex = Assert.Throws<InvalidOperationException>(() => settings.Validate());
+            StringAssert.Contains(nameof(WallKickSettings.MinAwayDot), ex.Message);
         }
     }
 }

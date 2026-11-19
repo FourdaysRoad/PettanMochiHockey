@@ -52,6 +52,12 @@ namespace MochiHockey.Core
                     // しゃっ：明るいノイズ
                     b.Noise(0f, 0.16f, 1f, Env.Bell, 0.7f);
                     break;
+                case SoundId.WallKick:
+                    // ばしゅっ：壁を蹴る低い音 ＋ 上がっていく風切り
+                    b.Sweep(0f, 0.08f, 160f, 90f, 0.8f, Env.Hit);
+                    b.Noise(0f, 0.22f, 0.8f, Env.Bell, 0.5f);
+                    b.Sweep(0.02f, 0.2f, 400f, 900f, 0.35f, Env.Pluck);
+                    break;
                 case SoundId.Shot:
                     // ぱこん：短いノイズ ＋ 下がる音
                     b.Noise(0f, 0.025f, 0.8f, Env.Hit, 0.8f);
@@ -111,6 +117,7 @@ namespace MochiHockey.Core
                 case SoundId.Stuck: return 0.32f;
                 case SoundId.Pon: return 0.18f;
                 case SoundId.Dash: return 0.18f;
+                case SoundId.WallKick: return 0.26f;
                 case SoundId.Shot: return 0.14f;
                 case SoundId.RiceGet: return 0.1f;
                 case SoundId.LevelUp: return 0.5f;

@@ -58,6 +58,7 @@ namespace MochiHockey.Runtime
         private static readonly string[] s_levels = Cache(4, n => $"Lv.{n}");
         private static readonly string[] s_multipliers = Cache(10, n => $"x{n}");
         private static readonly string[] s_players = Cache(9, n => $"{n}P");
+        private static readonly string[] s_chains = Cache(32, n => $"{n} CHAIN!");
 
         public static string LevelLabel(MochiLevel level) => Pick(s_levels, (int)level, n => $"Lv.{n}");
 
@@ -65,6 +66,9 @@ namespace MochiHockey.Runtime
 
         /// <summary>プレイヤー番号（1〜4）の表示。番号が決まっていなければ "?"。</summary>
         public static string PlayerLabel(int number) => number >= 1 ? Pick(s_players, number, n => $"{n}P") : "?";
+
+        /// <summary>壁キックの連鎖の表示（例：「3 CHAIN!」）。</summary>
+        public static string ChainLabel(int chain) => Pick(s_chains, chain, n => $"{n} CHAIN!");
 
         /// <summary>数（スコアなど）の表示。</summary>
         public static string Number(int value) => Pick(s_numbers, value, n => n.ToString());

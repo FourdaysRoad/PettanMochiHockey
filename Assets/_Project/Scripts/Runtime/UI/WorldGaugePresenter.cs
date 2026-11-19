@@ -15,6 +15,7 @@ namespace MochiHockey.Runtime
 
         private readonly Dictionary<PlayerController, PlayerGauge> _players = new Dictionary<PlayerController, PlayerGauge>();
         private readonly Dictionary<PlayerController, DizzyStars> _stars = new Dictionary<PlayerController, DizzyStars>();
+        private readonly Dictionary<PlayerController, WallKickArrow> _kicks = new Dictionary<PlayerController, WallKickArrow>();
 
         public MochiBall Ball
         {
@@ -26,6 +27,10 @@ namespace MochiHockey.Runtime
 
         public PlayerGauge GaugeOf(PlayerController player) =>
             player != null && _players.TryGetValue(player, out var gauge) ? gauge : null;
+
+        /// <summary>そのプレイヤーの壁キックの矢印と連鎖の表示。</summary>
+        public WallKickArrow WallKickOf(PlayerController player) =>
+            player != null && _kicks.TryGetValue(player, out var kick) ? kick : null;
 
         /// <summary>そのプレイヤーのピヨり（頭の上の星）。</summary>
         public DizzyStars StarsOf(PlayerController player) =>
@@ -47,6 +52,7 @@ namespace MochiHockey.Runtime
             {
                 _players[player] = PlayerGauge.Create(player);
                 _stars[player] = DizzyStars.Create(player);
+                _kicks[player] = WallKickArrow.Create(player);
             }
         }
 
@@ -73,6 +79,14 @@ namespace MochiHockey.Runtime
                     stars.Refresh(Time.deltaTime);
                 }
             }
+
+            foreach (var kick in _kicks.Values)
+            {
+                if (kick != null)
+                {
+                    kick.Refresh(viewer);
+                }
+            }
         }
 
         private void OnDestroy()
@@ -95,6 +109,14 @@ namespace MochiHockey.Runtime
                 if (stars != null)
                 {
                     Destroy(stars.gameObject);
+                }
+            }
+
+            foreach (var kick in _kicks.Values)
+            {
+                if (kick != null)
+                {
+                    Destroy(kick.gameObject);
                 }
             }
         }
