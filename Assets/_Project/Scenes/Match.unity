@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 20014882}
   - component: {fileID: 20014881}
   - component: {fileID: 20014880}
+  - component: {fileID: 20014884}
   m_Layer: 0
   m_Name: Floor
   m_TagString: Untagged
@@ -232,6 +233,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &20014884
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 20014879}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f25ddfdd6534f44a855b761cd4ff581, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MochiHockey.Runtime::MochiHockey.Runtime.ColorTint
+  color: {r: 0.9019608, g: 0.95686275, b: 1, a: 1}
+  smoothness: 0.85
 --- !u!1 &46329738
 GameObject:
   m_ObjectHideFlags: 0
@@ -464,6 +479,7 @@ GameObject:
   - component: {fileID: 282065043}
   - component: {fileID: 282065042}
   - component: {fileID: 282065041}
+  - component: {fileID: 282065044}
   m_Layer: 0
   m_Name: Wall_North
   m_TagString: Untagged
@@ -564,6 +580,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 282065039}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &282065044
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 282065039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f25ddfdd6534f44a855b761cd4ff581, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MochiHockey.Runtime::MochiHockey.Runtime.ColorTint
+  color: {r: 0.35686275, g: 0.60784316, b: 0.8784314, a: 1}
+  smoothness: 0.4
 --- !u!1 &479745255
 GameObject:
   m_ObjectHideFlags: 0
@@ -771,6 +801,7 @@ GameObject:
   - component: {fileID: 1016342704}
   - component: {fileID: 1016342703}
   - component: {fileID: 1016342702}
+  - component: {fileID: 1016342705}
   m_Layer: 0
   m_Name: Wall_South
   m_TagString: Untagged
@@ -871,6 +902,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1016342700}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1016342705
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1016342700}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f25ddfdd6534f44a855b761cd4ff581, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MochiHockey.Runtime::MochiHockey.Runtime.ColorTint
+  color: {r: 0.35686275, g: 0.60784316, b: 0.8784314, a: 1}
+  smoothness: 0.4
 --- !u!1 &1016785808
 GameObject:
   m_ObjectHideFlags: 0
@@ -914,6 +959,7 @@ GameObject:
   - component: {fileID: 1212417691}
   - component: {fileID: 1212417690}
   - component: {fileID: 1212417689}
+  - component: {fileID: 1212417692}
   m_Layer: 0
   m_Name: Wall_East
   m_TagString: Untagged
@@ -1014,6 +1060,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1212417687}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1212417692
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1212417687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f25ddfdd6534f44a855b761cd4ff581, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MochiHockey.Runtime::MochiHockey.Runtime.ColorTint
+  color: {r: 0.35686275, g: 0.60784316, b: 0.8784314, a: 1}
+  smoothness: 0.4
 --- !u!1 &1305924534
 GameObject:
   m_ObjectHideFlags: 0
@@ -1027,6 +1087,7 @@ GameObject:
   - component: {fileID: 1305924537}
   - component: {fileID: 1305924536}
   - component: {fileID: 1305924535}
+  - component: {fileID: 1305924540}
   m_Layer: 0
   m_Name: Goal_B
   m_TagString: Untagged
@@ -1142,6 +1203,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1305924540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1305924534}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fa4b6c0b61ef0b44ae99a5b11cae127, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MochiHockey.Runtime::MochiHockey.Runtime.UsuVisual
+  radius: 0.9
+  height: 0.8
+  innerRadius: 0.7
+  innerDepth: 0.12
+  bandHeight: 0.12
+  bodyColor: {r: 0.6, g: 0.4, b: 0.22, a: 1}
+  bandColor: {r: 0.45, g: 0.28, b: 0.14, a: 1}
+  innerColor: {r: 0.25, g: 0.15, b: 0.08, a: 1}
 --- !u!1 &1503935503
 GameObject:
   m_ObjectHideFlags: 0
@@ -1358,6 +1439,7 @@ GameObject:
   - component: {fileID: 1762654826}
   - component: {fileID: 1762654825}
   - component: {fileID: 1762654824}
+  - component: {fileID: 1762654829}
   m_Layer: 0
   m_Name: Goal_A
   m_TagString: Untagged
@@ -1473,6 +1555,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1762654829
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1762654823}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fa4b6c0b61ef0b44ae99a5b11cae127, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MochiHockey.Runtime::MochiHockey.Runtime.UsuVisual
+  radius: 0.9
+  height: 0.8
+  innerRadius: 0.7
+  innerDepth: 0.12
+  bandHeight: 0.12
+  bodyColor: {r: 0.6, g: 0.4, b: 0.22, a: 1}
+  bandColor: {r: 0.45, g: 0.28, b: 0.14, a: 1}
+  innerColor: {r: 0.25, g: 0.15, b: 0.08, a: 1}
 --- !u!1 &1792692221
 GameObject:
   m_ObjectHideFlags: 0
@@ -1487,6 +1589,7 @@ GameObject:
   - component: {fileID: 1792692224}
   - component: {fileID: 1792692223}
   - component: {fileID: 1792692222}
+  - component: {fileID: 1792692228}
   m_Layer: 0
   m_Name: MochiBall
   m_TagString: Untagged
@@ -1627,6 +1730,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1792692228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1792692221}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f25ddfdd6534f44a855b761cd4ff581, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MochiHockey.Runtime::MochiHockey.Runtime.ColorTint
+  color: {r: 1, g: 0.9843137, b: 0.9490196, a: 1}
+  smoothness: 0.35
 --- !u!1 &1872971519
 GameObject:
   m_ObjectHideFlags: 0
@@ -1685,6 +1802,7 @@ GameObject:
   - component: {fileID: 1958525551}
   - component: {fileID: 1958525550}
   - component: {fileID: 1958525549}
+  - component: {fileID: 1958525552}
   m_Layer: 0
   m_Name: Wall_West
   m_TagString: Untagged
@@ -1785,6 +1903,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1958525547}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1958525552
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1958525547}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f25ddfdd6534f44a855b761cd4ff581, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MochiHockey.Runtime::MochiHockey.Runtime.ColorTint
+  color: {r: 0.35686275, g: 0.60784316, b: 0.8784314, a: 1}
+  smoothness: 0.4
 --- !u!1 &1997000078
 GameObject:
   m_ObjectHideFlags: 0

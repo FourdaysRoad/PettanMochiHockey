@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4808557376337160547}
   - component: {fileID: 8310652523340123302}
   - component: {fileID: 2931094811660026228}
+  - component: {fileID: 2006436954434876193}
   m_Layer: 0
   m_Name: MochiRice
   m_TagString: Untagged
@@ -125,3 +126,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d60723fd750d7dd4b902c5c6b6002783, type: 3}
   m_Name: 
   m_EditorClassIdentifier: MochiHockey.Runtime::MochiHockey.Runtime.MochiRice
+--- !u!114 &2006436954434876193
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2776163936488934551}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f25ddfdd6534f44a855b761cd4ff581, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MochiHockey.Runtime::MochiHockey.Runtime.ColorTint
+  color: {r: 0.8235295, g: 0.8235295, b: 0.8235295, a: 1}
+  smoothness: 0.6

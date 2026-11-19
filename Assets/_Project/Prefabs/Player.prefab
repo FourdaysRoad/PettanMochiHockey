@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 4167193173242048424}
   - component: {fileID: 3239776887704408750}
   - component: {fileID: 3646824176305154717}
+  - component: {fileID: 2574408745031100920}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -200,3 +201,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: MochiHockey.Runtime::MochiHockey.Runtime.PlayerVisual
   profile: {fileID: 0}
   useLocalProfile: 1
+--- !u!114 &2574408745031100920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6527071138699680836}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be290bc7dd9f515439d7a99760997c75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MochiHockey.Runtime::MochiHockey.Runtime.MalletVisual
+  pivotOffset: {x: 0, y: 0.1, z: 0}
+  handleStart: 0.3
+  handleLength: 0.9
+  handleRadius: 0.05
+  headLength: 0.55
+  headRadius: 0.22
+  handleColor: {r: 0.85, g: 0.68, b: 0.45, a: 1}
+  headColor: {r: 0.7, g: 0.5, b: 0.3, a: 1}

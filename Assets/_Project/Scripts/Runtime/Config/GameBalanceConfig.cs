@@ -272,6 +272,15 @@ namespace MochiHockey.Runtime
 
             [Tooltip("仮：杵の当たり判定（球）の半径（m）")]
             [Min(0.01f)] public float Radius = 0.8f;
+
+            [Tooltip("仮：杵の見た目の構えの角度（度、+ が右）。見た目だけ")]
+            [Range(-180f, 180f)] public float RestYaw = 60f;
+
+            [Tooltip("仮：杵の見た目を振り抜く角度（度）。右から左へ振る。振る時間は Player.SwingActiveTime。見た目だけ")]
+            [Range(0f, 360f)] public float SwingArcAngle = 150f;
+
+            [Tooltip("仮：振り抜いた杵が構えに戻るまでの秒数。見た目だけ")]
+            [Min(0f)] public float SwingReturnTime = 0.2f;
         }
 
         [Serializable]
