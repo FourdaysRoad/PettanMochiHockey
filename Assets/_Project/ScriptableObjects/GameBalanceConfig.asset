@@ -78,6 +78,9 @@ MonoBehaviour:
   Mallet:
     Reach: 1.2
     Radius: 0.8
+    RestYaw: 60
+    SwingArcAngle: 150
+    SwingReturnTime: 0.2
   Camera:
     Pitch: 55
     FramingSize: 0.75
@@ -85,3 +88,21 @@ MonoBehaviour:
     MaxDistance: 34
     Damping: 0.6
     PlayerRadius: 1.5
+  Vfx:
+    SprayMinSpeed: 3
+    SprayTurnAngle: 70
+    SprayRate: 80
+    DashSprayCount: 16
+    PettanBubbleDuration: 0.7
+    PettanBubbleHeight: 1.6
+    PettanBubbleSize: 2.2
+    ShockwaveDuration: 0.3
+    ShockwaveSize: 3.5
+  Audio:
+    SampleRate: 22050
+    SeVolume: 0.8
+    BgmVolume: 0.35
+    BgmTempo: 132
+    PitchJitter: 0.06
+    Voices: 10
+    BallBounceMinSpeed: 2

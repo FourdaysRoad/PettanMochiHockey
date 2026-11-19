@@ -170,7 +170,7 @@ TASK-0025 → TASK-0026
 - [x] [TASK-0028: 演出（ヒットストップ・Pettan!!! VFX・氷しぶき）](TASK-0028.md) - 8h (DIRECT) 🔵
 - [x] [TASK-0029: サウンド（SE・BGM・圧縮設定）](TASK-0029.md) - 8h (DIRECT) 🟡
 - [x] [TASK-0030: カスタム WebGL テンプレート（ロゴ・進捗バー）](TASK-0030.md) - 8h (DIRECT) 🔵
-- [ ] [TASK-0031: パフォーマンス・ビルドサイズ・ロード時間の計測と最適化](TASK-0031.md) - 8h (DIRECT) 🟡
+- [x] [TASK-0031: パフォーマンス・ビルドサイズ・ロード時間の計測と最適化](TASK-0031.md) - 8h (DIRECT) 🟡
 - [ ] [TASK-0032: バランス調整とリリース確認](TASK-0032.md) - 8h (DIRECT) 🟡
 
 ### 依存関係
