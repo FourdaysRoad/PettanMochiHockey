@@ -127,9 +127,12 @@ namespace MochiHockey.Tests.PlayMode
             _p1.SetMoveInput(Vector2.up);
             yield return new WaitForSeconds(0.4f);
 
+            // テストはゲージが追いかける前（LateUpdate の前）に見ることがあるので、1 フレームで進む分のずれは許す
+            // （CI のようにフレームが重いと、1 フレームで 0.1 m 以上進む）
             var gauge = _presenter.GaugeOf(_p1).transform.position;
-            Assert.That(gauge.x, Is.EqualTo(_p1.transform.position.x).Within(0.05f));
-            Assert.That(gauge.z, Is.EqualTo(_p1.transform.position.z).Within(0.05f));
+            var oneFrame = _p1.PlanarVelocity.magnitude * (Time.deltaTime + Time.fixedDeltaTime);
+            Assert.That(gauge.x, Is.EqualTo(_p1.transform.position.x).Within(0.05f + oneFrame));
+            Assert.That(gauge.z, Is.EqualTo(_p1.transform.position.z).Within(0.05f + oneFrame));
             Assert.That(gauge.y, Is.LessThan(0.2f));
         }
 
