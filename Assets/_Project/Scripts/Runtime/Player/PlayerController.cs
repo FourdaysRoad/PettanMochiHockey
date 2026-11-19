@@ -28,6 +28,7 @@ namespace MochiHockey.Runtime
 
         private PlayerSettings _settings;
         private float _blinkInterval;
+        private float _pettanSettingsHitStop;
         private SkateMotion _motion;
         private Stamina _stamina;
         private ShotCharge _shotCharge;
@@ -42,6 +43,8 @@ namespace MochiHockey.Runtime
 
         private bool _hasPendingHit;
         private Vector3 _pendingHitDirection;
+        private PlayerController _pendingAttacker;
+        private float _hitStopRemaining;
         private float _pettanBaseHeight;
 
         public GameBalanceConfig Config
@@ -99,6 +102,21 @@ namespace MochiHockey.Runtime
         /// <summary>杵を振り始めた（見た目のアニメーション用）。</summary>
         public event System.Action Swung;
 
+        /// <summary>ダッシュした（氷しぶきの演出用）。</summary>
+        public event System.Action Dashed;
+
+        /// <summary>どれかのプレイヤーが杵などで叩かれて HitStop に入った（Pettan!!! の演出用）。</summary>
+        public static event System.Action<PlayerController> AnyHitTaken;
+
+        /// <summary>移動の入力（操作できないときは 0）。</summary>
+        public Vector2 MoveInput => CanControl ? new Vector2(_moveInput.X, _moveInput.Y) : Vector2.zero;
+
+        /// <summary>
+        /// 杵を当てた側のヒットストップ中か（叩かれた側と同じ時間だけ止まって、手応えを出す）。
+        /// 止まっている間は動き・スイング・チャージの時間が進まない。
+        /// </summary>
+        public bool IsInHitStop => _hitStopRemaining > 0f;
+
         private void Awake()
         {
             Id = ++s_nextId;
@@ -119,6 +137,7 @@ namespace MochiHockey.Runtime
             var settings = config.ToSettings();
             _settings = settings.Player;
             _blinkInterval = config.Pettan.BlinkInterval;
+            _pettanSettingsHitStop = settings.Pettan.HitStopDuration;
             _motion = new SkateMotion(_settings);
             _stamina = new Stamina(_settings);
             _shotCharge = new ShotCharge(_settings);
@@ -177,7 +196,13 @@ namespace MochiHockey.Runtime
         /// </summary>
         public void ReceiveHit(PlayerController attacker)
         {
+            if (!CanBeHit || _hasPendingHit)
+            {
+                return;
+            }
+
             ReceiveHit(attacker.transform.forward);
+            _pendingAttacker = attacker;
         }
 
         /// <summary>吹き飛ばす方向を指定して被弾させる（Lv.3 シュートの巻き込みなど）。反映は LateUpdate。</summary>
@@ -206,6 +231,8 @@ namespace MochiHockey.Runtime
             _stamina = new Stamina(_settings);
             _swingRemaining = 0f;
             _whiffRemaining = 0f;
+            _hitStopRemaining = 0f;
+            _pendingAttacker = null;
             _dashRequested = false;
             _moveInput = System.Numerics.Vector2.Zero;
 
@@ -221,6 +248,12 @@ namespace MochiHockey.Runtime
             var deltaTime = Time.deltaTime;
 
             _pettan.Tick(deltaTime);
+            if (IsInHitStop && !IsPettanMoving())
+            {
+                _hitStopRemaining -= deltaTime;
+                return;
+            }
+
             _shotCharge.Tick(deltaTime);
             _stamina.Tick(deltaTime);
             UpdateSwing(deltaTime);
@@ -239,6 +272,7 @@ namespace MochiHockey.Runtime
                 if (CanControl && _stamina.TryConsumeDash())
                 {
                     _motion.AddImpulse(DashDirection() * _settings.DashImpulse);
+                    Dashed?.Invoke();
                 }
             }
 
@@ -266,6 +300,12 @@ namespace MochiHockey.Runtime
                     _body.MoveRotation(Quaternion.LookRotation(new Vector3(normal.X, 0f, normal.Y), Vector3.up));
                 }
 
+                return;
+            }
+
+            if (IsInHitStop)
+            {
+                _body.linearVelocity = new Vector3(0f, _body.linearVelocity.y, 0f);
                 return;
             }
 
@@ -310,6 +350,8 @@ namespace MochiHockey.Runtime
         private void ApplyHit()
         {
             _hasPendingHit = false;
+            var attacker = _pendingAttacker;
+            _pendingAttacker = null;
             if (!CanBeHit)
             {
                 return;
@@ -324,6 +366,7 @@ namespace MochiHockey.Runtime
             _motion.Stop();
             _swingRemaining = 0f;
             _whiffRemaining = 0f;
+            _hitStopRemaining = 0f;
 
             _pettanBaseHeight = _body.position.y;
             _body.linearVelocity = Vector3.zero;
@@ -333,6 +376,22 @@ namespace MochiHockey.Runtime
             _pettan.Begin(
                 new System.Numerics.Vector2(position.x, position.z),
                 new System.Numerics.Vector2(_pendingHitDirection.x, _pendingHitDirection.z));
+
+            if (attacker != null && attacker != this)
+            {
+                attacker.BeginHitStop(_pettanSettingsHitStop);
+            }
+
+            AnyHitTaken?.Invoke(this);
+        }
+
+        /// <summary>杵を当てた側を、叩かれた側と同じ時間だけ止める。</summary>
+        private void BeginHitStop(float duration)
+        {
+            if (PettanState == PettanState.Normal || PettanState == PettanState.Invincible)
+            {
+                _hitStopRemaining = Mathf.Max(_hitStopRemaining, duration);
+            }
         }
 
         private void OnPettanStateChanged(PettanState state)

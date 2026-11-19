@@ -75,7 +75,8 @@ namespace MochiHockey.Runtime
 
         private void Update()
         {
-            if (IsSwinging)
+            // 当てた瞬間のヒットストップ中は、杵も振り抜く途中で止める
+            if (IsSwinging && !_player.IsInHitStop)
             {
                 _elapsed += Time.deltaTime;
             }

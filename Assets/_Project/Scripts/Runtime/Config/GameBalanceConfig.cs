@@ -29,6 +29,9 @@ namespace MochiHockey.Runtime
         /// <summary>カメラ（Runtime だけが使う）。</summary>
         public CameraConfig Camera = new CameraConfig();
 
+        /// <summary>演出（Runtime だけが使う）。</summary>
+        public VfxConfig Vfx = new VfxConfig();
+
         /// <summary>Core 用の設定に変換する。値がおかしければ InvalidOperationException を投げる。</summary>
         public BalanceSettings ToSettings()
         {
@@ -303,6 +306,37 @@ namespace MochiHockey.Runtime
 
             [Tooltip("仮：画面に収めるときに考えるプレイヤーの大きさ（半径 m）")]
             [Min(0f)] public float PlayerRadius = 1.5f;
+        }
+
+        [Serializable]
+        public sealed class VfxConfig
+        {
+            [Tooltip("仮：氷しぶきを出す最低の速さ（m/s）")]
+            [Min(0f)] public float SprayMinSpeed = 3f;
+
+            [Tooltip("仮：氷しぶきを出す、進む向きと入力の向きのずれ（度）")]
+            [Range(0f, 179f)] public float SprayTurnAngle = 70f;
+
+            [Tooltip("仮：急な方向転換で 1 秒に出す氷しぶきの粒の数（いちばん強いとき）")]
+            [Min(0f)] public float SprayRate = 80f;
+
+            [Tooltip("仮：ダッシュしたときに一度に出す氷しぶきの粒の数")]
+            [Min(0)] public int DashSprayCount = 16;
+
+            [Tooltip("仮：Pettan!!! の吹き出しを出しておく秒数")]
+            [Min(0.05f)] public float PettanBubbleDuration = 0.7f;
+
+            [Tooltip("仮：Pettan!!! の吹き出しを出す高さ（叩かれたプレイヤーの中心から m）")]
+            public float PettanBubbleHeight = 1.6f;
+
+            [Tooltip("仮：Pettan!!! の吹き出しの大きさ（m）")]
+            [Min(0.1f)] public float PettanBubbleSize = 2.2f;
+
+            [Tooltip("仮：衝撃波（広がる輪）が広がりきるまでの秒数")]
+            [Min(0.05f)] public float ShockwaveDuration = 0.3f;
+
+            [Tooltip("仮：衝撃波が広がりきったときの直径（m）")]
+            [Min(0.1f)] public float ShockwaveSize = 3.5f;
         }
     }
 }

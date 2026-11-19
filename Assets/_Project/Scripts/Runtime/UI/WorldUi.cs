@@ -14,6 +14,7 @@ namespace MochiHockey.Runtime
         private static Sprite s_white;
         private static Sprite s_ring;
         private static Sprite s_star;
+        private static Sprite s_burst;
         private static Font s_font;
 
         public static Font Font => s_font != null ? s_font : s_font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
@@ -86,6 +87,63 @@ namespace MochiHockey.Runtime
             image.sprite = Star;
             image.color = color;
             return image;
+        }
+
+        /// <summary>まんがの「ドカン」のようなトゲトゲの吹き出し（色は color で付ける）。</summary>
+        public static Image CreateBurst(Transform parent, string name, Vector2 size, Color color)
+        {
+            var image = CreateRect(name, parent, Vector2.zero, size).gameObject.AddComponent<Image>();
+            image.sprite = Burst;
+            image.color = color;
+            return image;
+        }
+
+        /// <summary>白い輪（衝撃波など）。</summary>
+        public static Image CreateRing(Transform parent, string name, Vector2 size, Color color)
+        {
+            var image = CreateRing(parent, name, size);
+            image.color = color;
+            return image;
+        }
+
+        /// <summary>白いトゲトゲの吹き出しの画像。</summary>
+        private static Sprite Burst
+        {
+            get
+            {
+                if (s_burst != null)
+                {
+                    return s_burst;
+                }
+
+                const int size = 128;
+                const int spikes = 14;
+                var texture = new Texture2D(size, size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
+                var center = new Vector2(size / 2f - 0.5f, size / 2f - 0.5f);
+                var outer = size / 2f - 1f;
+                var inner = outer * 0.72f;
+                var points = new Vector2[spikes * 2];
+                for (var i = 0; i < points.Length; i++)
+                {
+                    var angle = i * Mathf.PI / spikes;
+                    // トゲの長さを少しずつ変えて、手描きらしくする
+                    var radius = i % 2 == 0 ? outer * (i % 4 == 0 ? 1f : 0.88f) : inner;
+                    points[i] = center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle) * 0.8f) * radius;
+                }
+
+                for (var y = 0; y < size; y++)
+                {
+                    for (var x = 0; x < size; x++)
+                    {
+                        var inside = IsInside(new Vector2(x, y), points);
+                        texture.SetPixel(x, y, new Color(1f, 1f, 1f, inside ? 1f : 0f));
+                    }
+                }
+
+                texture.Apply();
+                s_burst = Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
+                return s_burst;
+            }
         }
 
         private static Sprite White

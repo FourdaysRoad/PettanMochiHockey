@@ -37,6 +37,7 @@ namespace MochiHockey.Runtime
         public const string Ready = "READY...";
         public const string SuddenDeath = "SUDDEN DEATH";
         public const string Goal = "GOAL!";
+        public const string Pettan = "Pettan!!!";
         public const string Wins = "WINS!";
 
         public const string Paused = "PAUSED";
