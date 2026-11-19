@@ -6,6 +6,7 @@ namespace MochiHockey.Runtime
     /// 臼型ゴールの仮の見た目（REQ-003）。木の色の太い円柱に、上面のくぼみ（濃い色の円）を付ける。
     /// ゴールのトリガー（コライダー）はそのままで、元の見た目（MeshRenderer）だけを隠す。
     /// ゴールの大きさ（Scale）に関係なく、ここで決めた大きさ（m）で床の上に置く。
+    /// マテリアルはゴールの元の見た目のものを使う（公開版でピンクにならないように）。
     /// </summary>
     [RequireComponent(typeof(GoalPost))]
     public sealed class UsuVisual : MonoBehaviour
@@ -43,9 +44,16 @@ namespace MochiHockey.Runtime
             }
 
             var ownRenderer = GetComponent<MeshRenderer>();
+            Material material = null;
             if (ownRenderer != null)
             {
+                material = ownRenderer.sharedMaterial;
                 ownRenderer.enabled = false;
+            }
+
+            if (material == null)
+            {
+                Debug.LogWarning($"[MochiHockey] {name}: UsuVisual に使うマテリアルがありません（ゴールの MeshRenderer がない）。", this);
             }
 
             // ゴールの Scale を打ち消して、子は m で組み立てる
@@ -59,19 +67,19 @@ namespace MochiHockey.Runtime
             // Unity の円柱は高さ 2・半径 0.5
             PrimitiveArt.Create(PrimitiveType.Cylinder, "Body", root,
                 new Vector3(0f, height / 2f, 0f), Vector3.zero,
-                new Vector3(radius * 2f, height / 2f, radius * 2f), bodyColor);
+                new Vector3(radius * 2f, height / 2f, radius * 2f), material, bodyColor);
 
             if (bandHeight > 0f)
             {
                 PrimitiveArt.Create(PrimitiveType.Cylinder, "Band", root,
                     new Vector3(0f, height * 0.6f, 0f), Vector3.zero,
-                    new Vector3(radius * 2.04f, bandHeight / 2f, radius * 2.04f), bandColor);
+                    new Vector3(radius * 2.04f, bandHeight / 2f, radius * 2.04f), material, bandColor);
             }
 
             // くぼみ：上面の少し下に濃い色の円盤（上から見ると穴に見える）
             PrimitiveArt.Create(PrimitiveType.Cylinder, "Hollow", root,
                 new Vector3(0f, height - innerDepth / 2f + 0.005f, 0f), Vector3.zero,
-                new Vector3(innerRadius * 2f, innerDepth / 2f, innerRadius * 2f), innerColor, 0f);
+                new Vector3(innerRadius * 2f, innerDepth / 2f, innerRadius * 2f), material, innerColor, 0f);
         }
 
         private static float Inverse(float value) => Mathf.Approximately(value, 0f) ? 1f : 1f / value;

@@ -25,7 +25,7 @@ namespace MochiHockey.Tests.PlayMode
         {
             foreach (var go in Object.FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             {
-                if (go.name is "Player" or "Goal" or "Tinted")
+                if (go.name is "Player" or "Goal" or "Tinted" or "TestModel")
                 {
                     Object.Destroy(go);
                 }
@@ -47,6 +47,54 @@ namespace MochiHockey.Tests.PlayMode
             Assert.That(mallet.Pivot.name, Is.EqualTo(MalletVisual.RootName));
             Assert.That(mallet.Pivot.GetComponentsInChildren<Renderer>().Length, Is.EqualTo(2));
             Assert.That(mallet.Pivot.GetComponentsInChildren<Collider>(true), Is.Empty);
+        }
+
+        [Test]
+        public void Mallet_UsesThePlayersOwnMaterial()
+        {
+            // 公開版では CreatePrimitive の標準マテリアルが URP で使えずピンクになるので、プレイヤーのマテリアルを使う
+            var player = CreatePlayerWithMallet(Vector3.zero, Vector3.forward, Team.A, out var capsuleMaterial);
+            var mallet = player.GetComponent<MalletVisual>();
+
+            foreach (var r in mallet.Pivot.GetComponentsInChildren<Renderer>())
+            {
+                Assert.That(r.sharedMaterial, Is.SameAs(capsuleMaterial), r.name);
+            }
+        }
+
+        [Test]
+        public void Mallet_KeepsMaterialEvenWhenModelReplacesCapsule()
+        {
+            // 見た目のモデル（PlayerVisual）がカプセルの見た目を外しても、杵はカプセルのマテリアルを使う
+            var model = new GameObject("TestModel");
+            model.SetActive(false);
+            var profile = ScriptableObject.CreateInstance<PlayerVisualProfile>();
+            profile.ModelPrefab = model;
+
+            var player = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            player.name = "Player";
+            player.SetActive(false);
+            var capsuleMaterial = new Material(player.GetComponent<Renderer>().sharedMaterial) { name = "CapsuleMaterial" };
+            player.GetComponent<Renderer>().sharedMaterial = capsuleMaterial;
+            player.AddComponent<Rigidbody>().useGravity = false;
+            var visual = player.AddComponent<PlayerVisual>();
+            visual.Profile = profile;
+            visual.UseLocalProfile = false;
+            var controller = player.AddComponent<PlayerController>();
+            controller.Config = _config;
+            player.AddComponent<MalletHitbox>();
+            var mallet = player.AddComponent<MalletVisual>();
+            player.SetActive(true);
+
+            Assert.That(visual.HasModel, Is.True);
+            Assert.That(player.GetComponent<MeshRenderer>(), Is.Null, "カプセルの見た目は外れている");
+            foreach (var r in mallet.Pivot.GetComponentsInChildren<Renderer>())
+            {
+                Assert.That(r.sharedMaterial, Is.SameAs(capsuleMaterial), r.name);
+            }
+
+            Object.Destroy(model);
+            Object.Destroy(profile);
         }
 
         [Test]
@@ -120,6 +168,22 @@ namespace MochiHockey.Tests.PlayMode
         }
 
         [Test]
+        public void Usu_UsesTheGoalsOwnMaterial()
+        {
+            var goal = TestWorld.CreateGoal(new Vector3(-10f, 1f, 0f), Team.A);
+            goal.gameObject.SetActive(false);
+            var goalMaterial = new Material(goal.GetComponent<Renderer>().sharedMaterial) { name = "GoalMaterial" };
+            goal.GetComponent<Renderer>().sharedMaterial = goalMaterial;
+            var usu = goal.gameObject.AddComponent<UsuVisual>();
+            goal.gameObject.SetActive(true);
+
+            foreach (var r in usu.Root.GetComponentsInChildren<Renderer>())
+            {
+                Assert.That(r.sharedMaterial, Is.SameAs(goalMaterial), r.name);
+            }
+        }
+
+        [Test]
         public void Usu_StandsOnTheFloorWithItsOwnSize()
         {
             // ゴールの Scale（1.5, 2, 3）に関係なく、底が床（コライダーの底）にあり、高さは UsuVisual の値
@@ -173,9 +237,16 @@ namespace MochiHockey.Tests.PlayMode
 
         private PlayerController CreatePlayerWithMallet(Vector3 position, Vector3 facing, Team team)
         {
+            return CreatePlayerWithMallet(position, facing, team, out _);
+        }
+
+        private PlayerController CreatePlayerWithMallet(Vector3 position, Vector3 facing, Team team, out Material capsuleMaterial)
+        {
             var player = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             player.name = "Player";
             player.SetActive(false);
+            capsuleMaterial = new Material(player.GetComponent<Renderer>().sharedMaterial) { name = "CapsuleMaterial" };
+            player.GetComponent<Renderer>().sharedMaterial = capsuleMaterial;
             player.transform.SetPositionAndRotation(position, Quaternion.LookRotation(facing, Vector3.up));
             player.AddComponent<Rigidbody>().useGravity = false;
             var controller = player.AddComponent<PlayerController>();

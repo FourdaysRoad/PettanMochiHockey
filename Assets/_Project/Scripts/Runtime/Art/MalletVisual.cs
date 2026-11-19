@@ -7,9 +7,10 @@ namespace MochiHockey.Runtime
     /// 杵の仮の見た目（REQ-025 の見た目）。円柱の柄と頭を組み合わせて体の右前に構え、
     /// 杵を振ると（PlayerController.Swung）右から左へ水平に振り抜いて構えに戻る。
     /// 振りの角度・時間は GameBalanceConfig（Mallet、Player.SwingActiveTime）。形と色は見た目のデータなのでここに置く。
-    /// PlayerController が点滅に使う見た目を集める前に作るため、先に Awake する。
+    /// マテリアルはプレイヤーのカプセルのものを使う。PlayerVisual がカプセルの見た目を外す前に読むため、
+    /// PlayerVisual（-300）より先に Awake する（PlayerController が点滅に使う見た目を集めるよりも先）。
     /// </summary>
-    [DefaultExecutionOrder(-250)]
+    [DefaultExecutionOrder(-350)]
     [RequireComponent(typeof(PlayerController))]
     public sealed class MalletVisual : MonoBehaviour
     {
@@ -46,16 +47,23 @@ namespace MochiHockey.Runtime
         private void Awake()
         {
             _player = GetComponent<PlayerController>();
+            var bodyRenderer = GetComponent<Renderer>();
+            var material = bodyRenderer != null ? bodyRenderer.sharedMaterial : null;
+            if (material == null)
+            {
+                Debug.LogWarning($"[MochiHockey] {name}: MalletVisual に使うマテリアルがありません（プレイヤーの Renderer がない）。", this);
+            }
+
             var root = PrimitiveArt.CreateEmpty(RootName, transform, pivotOffset);
             Pivot = root;
 
             PrimitiveArt.Create(PrimitiveType.Cylinder, "Handle", root,
                 new Vector3(0f, 0f, handleStart + handleLength / 2f), new Vector3(90f, 0f, 0f),
-                new Vector3(handleRadius * 2f, handleLength / 2f, handleRadius * 2f), handleColor);
+                new Vector3(handleRadius * 2f, handleLength / 2f, handleRadius * 2f), material, handleColor);
 
             Head = PrimitiveArt.Create(PrimitiveType.Cylinder, "Head", root,
                 new Vector3(0f, 0f, handleStart + handleLength), new Vector3(0f, 0f, 90f),
-                new Vector3(headRadius * 2f, headLength / 2f, headRadius * 2f), headColor).transform;
+                new Vector3(headRadius * 2f, headLength / 2f, headRadius * 2f), material, headColor).transform;
 
             ApplyPose();
         }
